@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDb from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
+import ticketRoutes from './routes/ticketRoutes.js';
 import cookieParser from 'cookie-parser';
 
 dotenv.config();
@@ -16,13 +17,16 @@ app.use((req, res, next) => {
     next();
 });
 
-// Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/tickets', ticketRoutes);
 
 // A simple test route
 app.get('/', (req, res) => {
