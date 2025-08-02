@@ -32,6 +32,10 @@ const MobileDashboard = dynamic(() => import('../components/MobileDashboard').ca
   loading: () => <LoadingSpinner message="Loading mobile dashboard..." />
 });
 
+const Settings = dynamic(() => import('../components/Settings').catch(() => () => <Settings />), {
+  loading: () => <LoadingSpinner message="Loading settings..." />
+});
+
 // Mock components for development
 const MockLogin = ({ onLogin, error, onClearError }) => (
   <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
@@ -493,6 +497,14 @@ const App = () => {
           />
         );
         
+      case 'settings':
+        return (
+          <Settings 
+            userRole={userRole}
+            onNavigate={handleNavigation}
+          />
+        );
+
       default:
         return (
           <Login 
