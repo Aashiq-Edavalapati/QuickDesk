@@ -1,16 +1,18 @@
 import express from 'express';
-import { createTicket, getMyTickets, getTicketById } from '../controllers/ticketController.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { createTicket, getAllTickets, getMyTickets, getTicketById, updateTicketStatus } from '../controllers/ticketController.js';
+import { isAgentOrAdmin, protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Route for creating a ticket
-router.route('/').post(protect, createTicket);
 
-// Route for getting the logged-in user's tickets
-router.route('/mytickets').get(protect, getMyTickets);
+// User Routes
+router.route('/create').post(protect, createTicket); // Route for creating a ticket
+router.route('/mytickets').get(protect, getMyTickets); // Route for getting the logged-in user's tickets
+router.route('/user/:id').get(protect, getTicketById); // Route for getting a single ticket by its ID
 
-// Route for getting a single ticket by its ID
-router.route('/:id').get(protect, getTicketById);
+
+// Agent & Admin Routes
+router.route('/get-tickets').get(protect, isAgentOrAdmin, getAllTickets);
+router.route('/:id/status').put(protect, isAgentOrAdmin, updateTicketStatus);
 
 export default router;

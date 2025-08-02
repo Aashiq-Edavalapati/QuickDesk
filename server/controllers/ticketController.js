@@ -62,5 +62,46 @@ const getTicketById = async (req, res) => {
   }
 };
 
+// @desc    Get all tickets (for agents/admins)
+// @route   GET /api/tickets
+// @access  Private/Agent/Admin
+const getAllTickets = async (req, res) => {
+  try {
+    // We can add filtering/pagination logic here later
+    const tickets = await Ticket.find({}).populate('createdBy', 'name email');
+    res.status(200).json(tickets);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
 
-export { createTicket, getMyTickets, getTicketById };
+// @desc    Update a ticket's status
+// @route   PUT /api/tickets/:id/status
+// @access  Private/Agent/Admin
+const updateTicketStatus = async (req, res) => {
+  try {
+    const ticket = await Ticket.findById(req.params.id);
+
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
+
+    ticket.status = req.body.status || ticket.status;
+    
+    // You could also update assignedTo here if you want
+    // ticket.assignedTo = req.user._id;
+
+    const updatedTicket = await ticket.save();
+    res.status(200).json(updatedTicket);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+export { 
+    createTicket, 
+    getMyTickets, 
+    getTicketById,
+    getAllTickets,
+    updateTicketStatus
+};
