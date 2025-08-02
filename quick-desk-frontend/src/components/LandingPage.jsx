@@ -3,13 +3,20 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Bell, Search, Filter, ThumbsUp, ThumbsDown, MessageCircle, Eye, Users, BarChart3, TrendingUp } from 'lucide-react';
 
-const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
+  const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [sortBy, setSortBy] = useState('most_comment');
-  const [currentPage, setCurrentPage] = useState(1);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+
+ useEffect(() => {
+  setCurrentPage(1);
+}, [searchQuery, selectedCategory, selectedStatus, sortBy]);
+
 
   // Mock questions data
   const questions = [
@@ -78,6 +85,7 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
 });
   
   useEffect(() => {
+    
   const stored = JSON.parse(localStorage.getItem('viewCounts') || '{}');
   const initialViews = {};
   questions.forEach(q => {
@@ -125,11 +133,22 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
     }
   }, [filteredQuestions, sortBy]);
 
-      const itemsPerPage = 5;
-    const totalPages = Math.ceil(sortedQuestions.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedQuestions = sortedQuestions.slice(startIndex, startIndex + itemsPerPage);
-    const pages = Array.from({ length: totalPages }, (_, i) => i + 1); // Create an array of page numbers
+    const totalPages = useMemo(() => {
+  return Math.ceil(sortedQuestions.length / itemsPerPage);
+}, [sortedQuestions, itemsPerPage]);
+
+const startIndex = (currentPage - 1) * itemsPerPage;
+
+const paginatedQuestions = sortedQuestions.slice(
+  startIndex,
+  startIndex + itemsPerPage
+);
+
+const pages = useMemo(() => {
+  return Array.from({ length: totalPages }, (_, i) => i + 1);
+}, [totalPages]);
+
+
 
   const handleVote = (questionId, type) => {
   setVoteCounts(prev => ({
@@ -422,8 +441,9 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
               </button>
             ))}
             <button
-              disabled={currentPage === 11}
-              onClick={() => setCurrentPage((p) => Math.min(11, p + 1))}
+              disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+
               className="px-3 py-2 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               →
