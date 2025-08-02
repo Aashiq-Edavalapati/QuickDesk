@@ -54,7 +54,16 @@ const SettingsPage = ({ userRole = 'admin', onNavigate }) => {
 
   return (
     <main className="flex-1 p-8 text-white">
-      <h1 className="text-3xl font-bold mb-8">Application Settings</h1>
+      {/* CHANGE: Added a header with flexbox to hold the title and the new button */}
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Application Settings</h1>
+        <button 
+          onClick={() => onNavigate('dashboard')}
+          className="bg-green-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+        >
+          Back to Dashboard
+        </button>
+      </div>
       <div className="flex flex-col md:flex-row gap-8">
         {/* Tabs */}
         <div className="flex flex-col gap-2 md:w-1/4">
