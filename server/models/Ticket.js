@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import Category from './Category.js';
 
 const commentSchema = new mongoose.Schema({
   author: {
