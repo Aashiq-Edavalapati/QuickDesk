@@ -5,7 +5,6 @@ const protect = async (req, res, next) => {
   let token;
 
   // Read the JWT from the 'jwt' cookie
-  console.log(req.cookies);
   token = req.cookies.jwt;
 
   if (token) {
@@ -26,4 +25,26 @@ const protect = async (req, res, next) => {
   }
 };
 
-export { protect };
+// Middleware to check for Agent or Admin roles
+const isAgentOrAdmin = (req, res, next) => {
+  if (req.user && (req.user.role === 'Support Agent' || req.user.role === 'Admin')) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Forbidden: Not authorized as an Agent or Admin' });
+  }
+};
+
+// Middleware to check for Admin roles
+const isAdmin = (req, res, next) => {
+  if (req.user && req.user.role === 'Admin') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Forbidden: Requires Admin role' });
+  }
+};
+
+export { 
+  protect, 
+  isAgentOrAdmin, 
+  isAdmin 
+};

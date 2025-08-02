@@ -98,10 +98,89 @@ const updateTicketStatus = async (req, res) => {
   }
 };
 
+// @desc    Add a comment to a ticket
+// @route   POST /api/tickets/:id/comments
+// @access  Private
+const addCommentToTicket = async (req, res) => {
+  try {
+    const { text } = req.body;
+    const ticket = await Ticket.findById(req.params.id);
+
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
+
+    const comment = {
+      text,
+      author: req.user._id,
+    };
+
+    ticket.comments.push(comment);
+    await ticket.save();
+    res.status(201).json(ticket);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Upvote a ticket
+// @route   PUT /api/tickets/:id/upvote
+// @access  Private
+const upvoteTicket = async (req, res) => {
+  try {
+    const ticket = await Ticket.findById(req.params.id);
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
+
+    // Remove user from downvotes if they exist there
+    ticket.downvotes.pull(req.user._id);
+
+    // Add user to upvotes if they are not already there
+    if (!ticket.upvotes.includes(req.user._id)) {
+      ticket.upvotes.push(req.user._id);
+    }
+
+    await ticket.save();
+    res.status(200).json(ticket);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Downvote a ticket
+// @route   PUT /api/tickets/:id/downvote
+// @access  Private
+const downvoteTicket = async (req, res) => {
+  try {
+    const ticket = await Ticket.findById(req.params.id);
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
+    
+    // Remove user from upvotes if they exist there
+    ticket.upvotes.pull(req.user._id);
+
+    // Add user to downvotes if they are not already there
+    if (!ticket.downvotes.includes(req.user._id)) {
+      ticket.downvotes.push(req.user._id);
+    }
+    
+    await ticket.save();
+    res.status(200).json(ticket);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+
 export { 
     createTicket, 
     getMyTickets, 
     getTicketById,
     getAllTickets,
-    updateTicketStatus
+    updateTicketStatus,
+    addCommentToTicket,
+    downvoteTicket,
+    upvoteTicket,  
 };
