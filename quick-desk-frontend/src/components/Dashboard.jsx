@@ -1,6 +1,6 @@
 // components/Dashboard.js
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Bell, Search, Filter, ThumbsUp, ThumbsDown, MessageCircle, Eye, Users, BarChart3, TrendingUp } from 'lucide-react';
 
 const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
@@ -57,12 +57,13 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
 
 
     const [voteCounts, setVoteCounts] = useState(() => {
-    const initialVotes = {};
-    questions.forEach(q => {
+      const initialVotes = {};
+      questions.forEach(q => {
       initialVotes[q.id] = q.votes ?? 0;
     });
     return initialVotes;
-  });
+});
+
 
   const [viewCounts, setViewCounts] = useState(() => {
   const initialViews = {};
@@ -72,7 +73,15 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
   return initialViews;
 });
   
-  
+  useEffect(() => {
+  const stored = JSON.parse(localStorage.getItem('viewCounts') || '{}');
+  const initialViews = {};
+  questions.forEach(q => {
+    initialViews[q.id] = stored[q.id] ?? q.views ?? 0;
+  });
+  setViewCounts(initialViews);
+}, []);
+
 
   const categories = ['all', 'Technical', 'Development', 'AI', 'Business'];
   const statuses = ['all', 'Open', 'Closed','Resolved','In Progress'];
@@ -120,6 +129,7 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
       : Math.max(prev[questionId] - 1, 0)
   }));
 };
+
 
 
   const handleQuestionClick = (questionId) => {
