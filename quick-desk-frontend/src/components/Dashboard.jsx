@@ -89,6 +89,23 @@ const Dashboard = ({ user, userRole = 'Admin', onNavigate, onLogout }) => {
         </aside>
     );
 
+    // Custom Tooltip Style
+    const tooltipStyle = {
+        contentStyle: {
+            backgroundColor: '#2D3748', // Tailwind's gray-800
+            border: '1px solid #4A5568', // Tailwind's gray-600
+            borderRadius: '0.5rem',
+            color: '#E2E8F0' // Tailwind's gray-200 for text
+        },
+        itemStyle: {
+            color: '#E2E8F0' // Text color for each item in tooltip
+        },
+        cursor: {
+            fill: 'rgba(113, 128, 150, 0.1)' // Tailwind's gray-500 with low opacity
+        }
+    };
+
+
     return (
         <div className="min-h-screen bg-gray-900 flex text-white">
             <Sidebar />
@@ -156,7 +173,7 @@ const Dashboard = ({ user, userRole = 'Admin', onNavigate, onLogout }) => {
                                 <CartesianGrid strokeDasharray="3 3" stroke="#4A5568" />
                                 <XAxis dataKey="name" stroke="#A0AEC0" fontSize={12} />
                                 <YAxis stroke="#A0AEC0" fontSize={12} />
-                                <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }} />
+                                <Tooltip {...tooltipStyle} />
                                 <Legend wrapperStyle={{ fontSize: '14px' }}/>
                                 <Bar dataKey="questions" fill="#34D399" />
                             </BarChart>
@@ -180,7 +197,7 @@ const Dashboard = ({ user, userRole = 'Admin', onNavigate, onLogout }) => {
                                         <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                                     ))}
                                 </Pie>
-                                <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }}/>
+                                <Tooltip {...tooltipStyle} />
                                 <Legend wrapperStyle={{ fontSize: '14px' }}/>
                             </PieChart>
                         </ResponsiveContainer>
