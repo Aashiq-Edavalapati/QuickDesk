@@ -1,24 +1,37 @@
 import Ticket from '../models/Ticket.js';
 import sendEmail from '../utils/sendEmail.js';
+import cloudinary from '../config/cloudinary.js';
+import DatauriParser from 'datauri/parser.js';
+import path from 'path';
 
 // @desc    Create a new ticket
 // @route   POST /api/tickets
 // @access  Private
 const createTicket = async (req, res) => {
   const { subject, description, category } = req.body;
-
+  
   try {
+    let attachmentUrl = '';
+
+    // Check if a file was uploaded
+    if (req.file) {
+      const parser = new DatauriParser();
+      // Format the buffer from multer into a data URI
+      const dataUri = parser.format(path.extname(req.file.originalname).toString(), req.file.buffer);
+      
+      // Upload to Cloudinary
+      const result = await cloudinary.uploader.upload(dataUri.content, {
+        resource_type: 'auto', // Automatically detect the file type
+      });
+      attachmentUrl = result.secure_url;
+    }
+
     const ticket = await Ticket.create({
       subject,
       description,
       category,
-      createdBy: req.user._id, // req.user is available thanks to our 'protect' middleware
-    });
-
-    await sendEmail({
-      to: req.user.email,
-      subject: `Ticket Created: #${ticket._id}`,
-      text: `Hi ${req.user.name},\n\nYour ticket "${ticket.subject}" has been successfully created. A support agent will get back to you shortly.\n\nThank you,\nThe QuickDesk Team`,
+      createdBy: req.user._id,
+      attachmentUrl: attachmentUrl, // Save the Cloudinary URL
     });
 
     res.status(201).json(ticket);

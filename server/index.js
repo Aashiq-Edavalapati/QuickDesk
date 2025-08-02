@@ -7,6 +7,8 @@ import adminRoutes from './routes/adminRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import ticketRoutes from './routes/ticketRoutes.js';
 import cookieParser from 'cookie-parser';
+import passport from 'passport';
+import './config/passport.js';
 
 dotenv.config();
 
@@ -25,6 +27,8 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+
+app.use(passport.initialize());
 
 // Routes
 app.use('/api/auth', authRoutes);
