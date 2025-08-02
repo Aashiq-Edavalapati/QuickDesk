@@ -101,10 +101,11 @@ const Dashboard = ({ user, userRole = 'Admin', onNavigate, onLogout }) => {
                 </a>
             </nav>
             <div className="p-4 border-t border-gray-700/50">
-                 <button onClick={onLogout} className="flex items-center gap-3 w-full px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-colors">
-                    <LogOut size={20} />
-                    <span>Logout</span>
-                </button>
+                 <button onClick={() =>  {onNavigate('Login'); console.log('Logout button clicked');onLogout();}} className="flex items-center gap-3 w-full px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-colors">
+                        <LogOut size={20} />
+                        <span>Logout</span>
+</button>
+
             </div>
         </aside>
     );

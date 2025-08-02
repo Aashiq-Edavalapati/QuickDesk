@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 
 // Dynamically import components with loading fallbacks to prevent import errors
-const Login = dynamic(() => import('../components/Login').catch(() => () => <MockLogin />), {
+const Login = dynamic(() => import('../components/Login').catch(() => () => <Login />), {
   loading: () => <LoadingSpinner message="Loading login..." />
 });
 
@@ -20,247 +20,21 @@ const Dashboard = dynamic(() => import('../components/Dashboard').catch(() => <D
     loading: () => <LoadingSpinner message="Loading dashboard..." />
 })
 
-const AskQuestion = dynamic(() => import('../components/AskQuestion').catch(() => () => <MockAskQuestion />), {
+const AskQuestion = dynamic(() => import('../components/AskQuestion').catch(() => () => <AskQuestion />), {
   loading: () => <LoadingSpinner message="Loading..." />
 });
 
-const QuestionDetail = dynamic(() => import('../components/QuestionDetail').catch(() => () => <MockQuestionDetail />), {
+const QuestionDetail = dynamic(() => import('../components/QuestionDetail').catch(() => () => <QuestionDetail />), {
   loading: () => <LoadingSpinner message="Loading question..." />
 });
 
-const MobileDashboard = dynamic(() => import('../components/MobileDashboard').catch(() => () => <MockDashboard />), {
+const MobileDashboard = dynamic(() => import('../components/MobileDashboard').catch(() => () => <MobileDashboard />), {
   loading: () => <LoadingSpinner message="Loading mobile dashboard..." />
 });
 
 const Settings = dynamic(() => import('../components/Settings').catch(() => () => <Settings />), {
   loading: () => <LoadingSpinner message="Loading settings..." />
 });
-
-// Mock components for development
-const MockLogin = ({ onLogin, error, onClearError }) => (
-  <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-    <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
-      <h2 className="text-2xl font-bold text-white mb-6 text-center">Login</h2>
-      {error && (
-        <div className="bg-red-600 text-white p-3 rounded mb-4 flex justify-between items-center">
-          <span>{error}</span>
-          <button onClick={onClearError} className="text-red-200 hover:text-white">×</button>
-        </div>
-      )}
-      <div className="space-y-4">
-        <input
-          type="text"
-          placeholder="Username (try: admin, support, or user)"
-          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          id="username"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          id="password"
-        />
-        <button
-          onClick={() => {
-            const username = document.getElementById('username').value || 'user';
-            const password = document.getElementById('password').value || 'password';
-            onLogin(username, password);
-          }}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200"
-        >
-          Login
-        </button>
-      </div>
-      <p className="text-gray-400 text-sm mt-4 text-center">
-        Mock component - Create ../components/Login.js to replace this
-      </p>
-    </div>
-  </div>
-);
-
-const MockProfile = ({ user, userRole, onNavigate, onLogout }) => (
-  <div className="min-h-screen bg-gray-900 p-4">
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-gray-800 rounded-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-white">Profile</h1>
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
-          >
-            Back to Dashboard
-          </button>
-        </div>
-        <div className="space-y-4">
-          <div>
-            <label className="text-gray-400">Username:</label>
-            <p className="text-white text-lg">{user}</p>
-          </div>
-          <div>
-            <label className="text-gray-400">Role:</label>
-            <p className="text-white text-lg">{userRole}</p>
-          </div>
-          <button
-            onClick={onLogout}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg"
-          >
-            Logout
-          </button>
-        </div>
-        <p className="text-gray-400 text-sm mt-6">
-          Mock component - Create ../components/Profile.js to replace this
-        </p>
-      </div>
-    </div>
-  </div>
-);
-
-const MockDashboard = ({ user, userRole, onNavigate, onLogout }) => (
-  <div className="min-h-screen bg-gray-900 p-4">
-    <div className="max-w-6xl mx-auto">
-      <div className="bg-gray-800 rounded-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-            <p className="text-gray-400">Welcome back, {user} ({userRole})</p>
-          </div>
-          <div className="flex space-x-4">
-            <button
-              onClick={() => onNavigate('profile')}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
-            >
-              Profile
-            </button>
-            <button
-              onClick={() => onNavigate('ask')}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg"
-            >
-              Ask Question
-            </button>
-            <button
-              onClick={onLogout}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-gray-700 p-4 rounded-lg">
-            <h3 className="text-white font-semibold mb-2">Recent Questions</h3>
-            <p className="text-gray-400">5 new questions today</p>
-          </div>
-          <div className="bg-gray-700 p-4 rounded-lg">
-            <h3 className="text-white font-semibold mb-2">Pending Answers</h3>
-            <p className="text-gray-400">12 questions waiting</p>
-          </div>
-          <div className="bg-gray-700 p-4 rounded-lg">
-            <h3 className="text-white font-semibold mb-2">Resolved Today</h3>
-            <p className="text-gray-400">8 questions resolved</p>
-          </div>
-        </div>
-        
-        <p className="text-gray-400 text-sm mt-6">
-          Mock component - Create ../components/Dashboard.js to replace this
-        </p>
-      </div>
-    </div>
-  </div>
-);
-
-const MockAskQuestion = ({ user, userRole, onNavigate }) => (
-  <div className="min-h-screen bg-gray-900 p-4">
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-gray-800 rounded-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-white">Ask a Question</h1>
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
-          >
-            Back to Dashboard
-          </button>
-        </div>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-gray-400 mb-2">Question Title</label>
-            <input
-              type="text"
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="Enter your question title..."
-            />
-          </div>
-          
-          <div>
-            <label className="block text-gray-400 mb-2">Question Details</label>
-            <textarea
-              rows="6"
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="Describe your question in detail..."
-            ></textarea>
-          </div>
-          
-          <div className="flex space-x-4">
-            <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg">
-              Submit Question
-            </button>
-            <button 
-              onClick={() => onNavigate('dashboard')}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-        
-        <p className="text-gray-400 text-sm mt-6">
-          Mock component - Create ../components/AskQuestion.js to replace this
-        </p>
-      </div>
-    </div>
-  </div>
-);
-
-const MockQuestionDetail = ({ questionId, user, userRole, onNavigate }) => (
-  <div className="min-h-screen bg-gray-900 p-4">
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-gray-800 rounded-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-white">Question Details</h1>
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
-          >
-            Back to Dashboard
-          </button>
-        </div>
-        
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-xl text-white mb-2">Sample Question Title</h2>
-            <p className="text-gray-400">Question ID: {questionId}</p>
-            <p className="text-gray-300 mt-4">
-              This is a sample question detail view. The actual question content would be loaded here.
-            </p>
-          </div>
-          
-          <div className="border-t border-gray-600 pt-6">
-            <h3 className="text-lg text-white mb-4">Answers</h3>
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <p className="text-gray-300">No answers yet. Be the first to answer!</p>
-            </div>
-          </div>
-        </div>
-        
-        <p className="text-gray-400 text-sm mt-6">
-          Mock component - Create ../components/QuestionDetail.js to replace this
-        </p>
-      </div>
-    </div>
-  </div>
-);
 
 // Loading Spinner Component
 const LoadingSpinner = ({ message = "Loading..." }) => (
@@ -405,6 +179,7 @@ const App = () => {
   const handleLogout = useCallback(async () => {
     try {
       setIsLoading(true);
+      console.log('Logging out user:', user);
       
       // TODO: Call logout API
       // await fetch('/api/auth/logout', { method: 'POST' });
@@ -417,7 +192,6 @@ const App = () => {
       setSelectedQuestionId(null);
       setCurrentView('login');
       setError(null);
-      
     } catch (err) {
       setError('Logout failed. Please try again.');
       console.error('Logout error:', err);
