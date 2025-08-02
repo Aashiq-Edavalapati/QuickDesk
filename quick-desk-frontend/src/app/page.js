@@ -12,9 +12,13 @@ const Profile = dynamic(() => import('../components/Profile').catch(() => () => 
   loading: () => <LoadingSpinner message="Loading profile..." />
 });
 
-const Dashboard = dynamic(() => import('../components/Dashboard').catch(() => () => <MockDashboard />), {
-  loading: () => <LoadingSpinner message="Loading dashboard..." />
+const LandingPage = dynamic(() => import('../components/LandingPage').catch(() => () => <MockDashboard />), {
+  loading: () => <LoadingSpinner message="Loading landing page..." />
 });
+
+const Dashboard = dynamic(() => import('../components/Dashboard').catch(() => <Dashboard />), {
+    loading: () => <LoadingSpinner message="Loading dashboard..." />
+})
 
 const AskQuestion = dynamic(() => import('../components/AskQuestion').catch(() => () => <MockAskQuestion />), {
   loading: () => <LoadingSpinner message="Loading..." />
@@ -383,7 +387,7 @@ const App = () => {
       
       setUser(username);
       setUserRole(role);
-      setCurrentView('dashboard');
+      setCurrentView('landing');
       
     } catch (err) {
       setError('Login failed. Please check your credentials.');
@@ -430,6 +434,16 @@ const App = () => {
     }
 
     switch (currentView) {
+      case 'landing':
+        return(
+            <LandingPage 
+                onLogin={handleLogin}
+                error={error}
+                onClearError={clearError}
+                onNavigate={handleNavigation}
+            />
+        )
+
       case 'login':
         return (
           <Login 

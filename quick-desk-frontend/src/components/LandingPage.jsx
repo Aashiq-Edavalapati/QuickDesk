@@ -1,507 +1,282 @@
-// components/Dashboard.js
+// components/LandingPage.jsx
 'use client';
-import { useState, useMemo, useEffect } from 'react';
-import { Bell, Search, Filter, ThumbsUp, ThumbsDown, MessageCircle, Eye, Users, BarChart3, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
+import {
+  Bell,
+  Search,
+  Plus,
+  MessageCircle,
+  ThumbsUp,
+  Eye,
+  User,
+  Tag,
+  LayoutGrid,
+  Users,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  BarChart2
+} from 'lucide-react';
 
-  const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [sortBy, setSortBy] = useState('most_comment');
-  const [showNotifications, setShowNotifications] = useState(false);
+const LandingPage = ({ user, userRole = 'Admin', onNavigate, onLogout }) => {
+  const [activeFilter, setActiveFilter] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-
-
-  const formatTimeAgo = (dateString) => {
-    const now = new Date();
-    const date = new Date(dateString);
-    const seconds = Math.floor((now - date) / 1000);
-
-    if (seconds < 60) return `${seconds}s ago`;
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
-};
-
-
- useEffect(() => {
-  setCurrentPage(1);
-}, [searchQuery, selectedCategory, selectedStatus, sortBy]);
-
+  const questionsPerPage = 5;
 
   // Mock questions data
-  const questions = [
+  const allQuestions = [
     {
       id: 1,
-      title: "Is it good things to use AI for hackathon?",
-      description: "I am participating in odoo IN hackathon - 2025",
+      title: "Is it a good practice to use AI for hackathons?",
       author: "Mitchell Admin",
-      createdAt: "2025-08-01T10:30:00Z",
-      tags: ["Technical", "AI"],
-      category: "Technical",
+      authorRole: "Admin",
+      category: "AI",
+      timeAgo: "2 hours ago",
       status: "Open",
-      votes: 0,
+      votes: 15,
       replies: 21,
       views: 156
     },
     {
       id: 2,
-      title: "Best practices for React component optimization?",
-      description: "Looking for ways to improve performance in large React applications",
-      author: "Sarah Dev",
-      timeAgo: "5 minutes ago",
-      tags: ["Development", "React"],
+      title: "Best practices for database indexing in large-scale applications?",
+      author: "Sarah Developer",
+      authorRole: "Support Agent",
       category: "Development",
+      timeAgo: "5 hours ago",
       status: "Open",
-      votes: 3,
-      replies: 8,
-      views: 89
+      votes: 45,
+      replies: 12,
+      views: 320
     },
     {
       id: 3,
-      title: "How to implement authentication in Next.js?",
-      description: "Need guidance on setting up secure authentication",
+      title: "How to implement secure authentication with Next.js and JWT?",
       author: "John Smith",
-      timeAgo: "1 hour ago",
-      tags: ["NextJS", "Security"],
-      category: "Development",
-      status: "Closed",
-      votes: 5,
-      replies: 12,
-      views: 234
-    },
-    {
-      id: 4,
-      title: "Is it good things to use AI for hackathon?",
-      description: "I am participating in odoo IN hackathon - 2025",
-      author: "Mitchell Admin",
-      createdAt: "2025-08-01T10:30:00Z",
-      tags: ["Technical", "AI"],
+      authorRole: "End User",
       category: "Technical",
-      status: "Open",
-      votes: 0,
-      replies: 21,
-      views: 156
-    },
-    {
-      id: 5,
-      title: "Best practices for React component optimization?",
-      description: "Looking for ways to improve performance in large React applications",
-      author: "Sarah Dev",
-      timeAgo: "5 minutes ago",
-      tags: ["Development", "React"],
-      category: "Development",
-      status: "Open",
-      votes: 3,
-      replies: 8,
-      views: 89
-    },
-    {
-      id: 6,
-      title: "How to implement authentication in Next.js?",
-      description: "Need guidance on setting up secure authentication",
-      author: "John Smith",
-      timeAgo: "1 hour ago",
-      tags: ["NextJS", "Security"],
-      category: "Development",
+      timeAgo: "1 day ago",
       status: "Closed",
-      votes: 5,
-      replies: 12,
-      views: 234
+      votes: 120,
+      replies: 35,
+      views: 1200
     },
-    ];
+    {
+        id: 4,
+        title: "What are the key differences between REST and GraphQL?",
+        author: "Jane Doe",
+        authorRole: "End User",
+        category: "Development",
+        timeAgo: "2 days ago",
+        status: "Open",
+        votes: 78,
+        replies: 18,
+        views: 850
+    },
+    {
+        id: 5,
+        title: "Effective state management strategies in complex React apps",
+        author: "Emily White",
+        authorRole: "Support Agent",
+        category: "Technical",
+        timeAgo: "3 days ago",
+        status: "Open",
+        votes: 95,
+        replies: 25,
+        views: 1500
+    },
+     {
+      id: 6,
+      title: "Getting started with Docker and containerization",
+      author: "Michael Brown",
+      authorRole: "End User",
+      category: "Development",
+      timeAgo: "4 days ago",
+      status: "Closed",
+      votes: 60,
+      replies: 15,
+      views: 950
+    },
+    {
+      id: 7,
+      title: "How to optimize web performance and Core Web Vitals?",
+      author: "Chris Green",
+      authorRole: "Admin",
+      category: "Technical",
+      timeAgo: "5 days ago",
+      status: "Open",
+      votes: 110,
+      replies: 30,
+      views: 2200
+    }
+  ];
 
-    const [voteCounts, setVoteCounts] = useState(() => {
-      const initialVotes = {};
-      questions.forEach(q => {
-      initialVotes[q.id] = q.votes ?? 0;
-    });
-    return initialVotes;
-});
+  const filteredQuestions = allQuestions.filter(q => activeFilter === 'All' || q.status === activeFilter);
 
+  // Pagination logic
+  const indexOfLastQuestion = currentPage * questionsPerPage;
+  const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
+  const currentQuestions = filteredQuestions.slice(indexOfFirstQuestion, indexOfLastQuestion);
+  const totalPages = Math.ceil(filteredQuestions.length / questionsPerPage);
 
-  const [viewCounts, setViewCounts] = useState(() => {
-  const initialViews = {};
-  questions.forEach(q => {
-    initialViews[q.id] = q.views ?? 0;
-  });
-  return initialViews;
-});
-  
-  useEffect(() => {
-    
-    const stored = JSON.parse(localStorage.getItem('viewCounts') || '{}');
-    const initialViews = {};
-    questions.forEach(q => {
-      initialViews[q.id] = stored[q.id] ?? q.views ?? 0;
-    });
-    setViewCounts(initialViews);
-  }, []);
-
-
-  const categories = ['all', 'Technical', 'Development', 'AI', 'Business'];
-  const statuses = ['all', 'Open', 'Closed','Resolved','In Progress'];
-
-  // Dashboard stats
-  const stats = {
-    totalQuestions: 145,
-    totalAnswers: 523,
-    activeUsers: 89,
-    resolvedQuestions: 98
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber < 1 || pageNumber > totalPages) return;
+    setCurrentPage(pageNumber);
   };
 
-  // Filter questions
-  const filteredQuestions = useMemo(() => {
-    return questions.filter(question => {
-      const matchesSearch = question.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           question.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory === 'all' || question.category === selectedCategory;
-      const matchesStatus = selectedStatus === 'all' || question.status === selectedStatus;
-      
-      return matchesSearch && matchesCategory && matchesStatus;
-    });
-  }, [searchQuery, selectedCategory, selectedStatus]);
-
-  // Sort questions
-  const sortedQuestions = useMemo(() => {
-    const sorted = [...filteredQuestions];
-    switch (sortBy) {
-      case 'most_comment':
-        return sorted.sort((a, b) => b.replies - a.replies);
-      case 'most_upvote':
-        return sorted.sort((a, b) => b.votes - a.votes);
-      case 'newest':
-        return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      default:
-        return sorted;
-    }
-  }, [filteredQuestions, sortBy]);
-
-    const totalPages = useMemo(() => {
-  return Math.ceil(sortedQuestions.length / itemsPerPage);
-}, [sortedQuestions, itemsPerPage]);
-
-const startIndex = (currentPage - 1) * itemsPerPage;
-
-const paginatedQuestions = sortedQuestions.slice(
-  startIndex,
-  startIndex + itemsPerPage
-);
-
-const pages = useMemo(() => {
-  return Array.from({ length: totalPages }, (_, i) => i + 1);
-}, [totalPages]);
-
-
-
-  const handleVote = (questionId, type) => {
-  setVoteCounts(prev => ({
-    ...prev,
-    [questionId]: type === 'up'
-      ? prev[questionId] + 1
-      : Math.max(prev[questionId] - 1, 0)
-  }));
-};
-
-
-
   const handleQuestionClick = (questionId) => {
-  setViewCounts(prev => {
-    const updated = {
-      ...prev,
-      [questionId]: (prev[questionId] ?? 0) + 1
-    };
-    console.log('Updated views:', updated);
-    return updated;
-  });
+    onNavigate('question', questionId);
+  };
 
-  onNavigate('question', questionId);
-};
-
-
+  const Sidebar = () => (
+    <aside className="w-64 bg-gray-800/50 border-r border-gray-700/50 flex flex-col">
+        <div className="p-6 flex items-center gap-3">
+             <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-xl">Q</span>
+            </div>
+            <h1 className="text-xl font-bold text-white">Q&A Platform</h1>
+        </div>
+        <nav className="flex-1 px-4 py-2">
+            <a href="#" onClick={() => onNavigate('landing')} className="flex items-center gap-3 px-4 py-3 bg-green-600/20 text-green-300 rounded-lg">
+                <LayoutGrid size={20} />
+                <span>Questions</span>
+            </a>
+            <a href="#" onClick={() => onNavigate('dashboard')} className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-700/50 hover:text-white rounded-lg transition-colors mt-2">
+                <BarChart2 size={20} />
+                <span>Dashboard</span>
+            </a>
+            <a href="#" onClick={() => onNavigate('profile')} className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-700/50 hover:text-white rounded-lg transition-colors mt-2">
+                <User size={20} />
+                <span>Profile</span>
+            </a>
+             {userRole === 'Admin' && (
+                <a href="#" className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-700/50 hover:text-white rounded-lg transition-colors mt-2">
+                    <Users size={20} />
+                    <span>Users</span>
+                </a>
+             )}
+            <a href="#" className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-700/50 hover:text-white rounded-lg transition-colors mt-2">
+                <Settings size={20} />
+                <span>Settings</span>
+            </a>
+        </nav>
+        <div className="p-4 border-t border-gray-700/50">
+             <button onClick={onLogout} className="flex items-center gap-3 w-full px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-colors">
+                <LogOut size={20} />
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700 px-4 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-white">Q&A Platform</h1>
+    <div className="min-h-screen bg-gray-900 flex text-white">
+      <Sidebar />
+      <main className="flex-1 p-8">
+        {/* Header */}
+        <header className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Welcome back, {user}!</h1>
+            <p className="text-gray-400">Here's what's happening today.</p>
           </div>
-          
           <div className="flex items-center gap-4">
             <div className="relative">
-              <button
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 text-gray-300 hover:text-white transition-colors"
-              >
-                <Bell size={20} />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-              </button>
-              
-              {showNotifications && (
-                <div className="absolute right-0 top-12 w-80 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50">
-                  <div className="p-4">
-                    <h3 className="text-white font-semibold mb-3">Notifications</h3>
-                    <div className="space-y-2">
-                      <div className="p-3 bg-gray-700 rounded-lg">
-                        <p className="text-gray-300 text-sm">New reply on your question</p>
-                        <p className="text-gray-500 text-xs">2 minutes ago</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <input type="text" placeholder="Search..." className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-12 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500" />
             </div>
-            
-            <button
-              onClick={() => onNavigate('dashboard')}
-              className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
-            >
-              Dashboard
+            <button className="p-3 bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 transition-colors">
+              <Bell size={20} />
             </button>
-            
-            <button
-              onClick={() => onNavigate('login')}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-            >
-              Logout
+            <button onClick={() => onNavigate('ask')} className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors">
+              <Plus size={20} />
+              <span>Ask Question</span>
             </button>
           </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto p-4">
-        {/* Dashboard Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-green-600 rounded-lg p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-green-100 text-sm">Total Questions</p>
-                <p className="text-2xl font-bold">{stats.totalQuestions}</p>
-              </div>
-              <MessageCircle size={32} className="text-green-200" />
-            </div>
-          </div>
-          
-          <div className="bg-blue-600 rounded-lg p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-sm">Total Answers</p>
-                <p className="text-2xl font-bold">{stats.totalAnswers}</p>
-              </div>
-              <BarChart3 size={32} className="text-blue-200" />
-            </div>
-          </div>
-          
-          <div className="bg-purple-600 rounded-lg p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-purple-100 text-sm">Active Users</p>
-                <p className="text-2xl font-bold">{stats.activeUsers}</p>
-              </div>
-              <Users size={32} className="text-purple-200" />
-            </div>
-          </div>
-          
-          <div className="bg-orange-600 rounded-lg p-6 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-orange-100 text-sm">Resolved</p>
-                <p className="text-2xl font-bold">{stats.resolvedQuestions}</p>
-              </div>
-              <TrendingUp size={32} className="text-orange-200" />
-            </div>
-          </div>
-        </div>
-
-        {/* Filters and Search */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              {/* Search */}
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  placeholder="Search questions..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              
-              {/* Ask Button */}
-              <button
-                onClick={() => onNavigate('ask')}
-                className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors whitespace-nowrap"
-              >
-                Ask Question
-              </button>
-            </div>
-            
-            {/* Filters */}
-            <div className="flex gap-4">
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category === 'all' ? 'All Categories' : category}
-                  </option>
-                ))}
-              </select>
-              
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                {statuses.map(status => (
-                  <option key={status} value={status}>
-                    {status === 'all' ? 'All Status' : status}
-                  </option>
-                ))}
-              </select>
-              
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                <option value="most_comment">Most Comments</option>
-                <option value="most_upvote">Most Upvoted</option>
-                <option value="newest">Newest</option>
-              </select>
-            </div>
-          </div>
-        </div>
+        </header>
 
         {/* Questions List */}
-        <div className="space-y-4 mb-6">
-          {paginatedQuestions.map((question) => (
-            <div
-              key={question.id}
-              className="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-gray-600 transition-colors cursor-pointer"
-              onClick={() => handleQuestionClick(question.id)}
-            >
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg font-semibold text-white hover:text-green-400 transition-colors">
-                  {question.title}
-                </h3>
-                <div className="flex items-center gap-2">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    question.status === 'Open' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {question.status}
-                  </span>
+        <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg">
+            <div className="p-6 flex justify-between items-center border-b border-gray-700/50">
+                <h2 className="text-xl font-semibold">Questions</h2>
+                <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 p-1 rounded-lg">
+                    {['All', 'Open', 'Closed'].map(filter => (
+                        <button key={filter} onClick={() => { setActiveFilter(filter); setCurrentPage(1); }} className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeFilter === filter ? 'bg-green-600 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'}`}>
+                            {filter}
+                        </button>
+                    ))}
                 </div>
-              </div>
-              
-              <p className="text-gray-300 mb-4">{question.description}</p>
-              
-              <div className="flex flex-wrap gap-2 mb-4">
-                {question.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2 py-1 bg-blue-600 text-blue-100 text-xs rounded-full"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              
-              <div className="flex items-center justify-between text-sm text-gray-400">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleVote(question.id, 'up');
-                      }}
-                      className="p-1 hover:text-green-400 transition-colors"
-                    >
-                      <ThumbsUp size={16} />
-                    </button>
-                    <span>{voteCounts[question.id] ?? 0}</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleVote(question.id, 'down');
-                      }}
-                      className="p-1 hover:text-red-400 transition-colors"
-                    >
-                      <ThumbsDown size={16} />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <MessageCircle size={16} />
-                    <span>{question.replies}</span>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <Eye size={16} />
-                    <span>{viewCounts[question.id] ?? 0}</span>
-                  </div>
-                </div>
-
-                <div>
-                  Posted by {question.author} • {question.timeAgo}
-                </div>
-              </div>
-
             </div>
-          ))}
+
+            {/* Table */}
+            <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="border-b border-gray-700/50">
+                        <tr>
+                            <th className="p-4 text-sm font-semibold text-gray-400">Question</th>
+                            <th className="p-4 text-sm font-semibold text-gray-400">Author</th>
+                            <th className="p-4 text-sm font-semibold text-gray-400">Stats</th>
+                            <th className="p-4 text-sm font-semibold text-gray-400">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentQuestions.map(q => (
+                             <tr key={q.id} onClick={() => handleQuestionClick(q.id)} className="border-b border-gray-700/50 hover:bg-gray-800 cursor-pointer transition-colors">
+                                <td className="p-4 align-top">
+                                    <p className="font-semibold text-white mb-1">{q.title}</p>
+                                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                                        <Tag size={14} />
+                                        <span>{q.category}</span>
+                                    </div>
+                                </td>
+                                <td className="p-4 align-top">
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${q.authorRole === 'Admin' ? 'bg-red-500' : q.authorRole === 'Support Agent' ? 'bg-blue-500' : 'bg-gray-600'}`}>
+                                            <User size={16} />
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-white">{q.author}</p>
+                                            <p className="text-sm text-gray-400">{q.authorRole}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="p-4 align-top">
+                                    <div className="flex items-center gap-4 text-sm text-gray-300">
+                                        <div className="flex items-center gap-1" title="Votes"><ThumbsUp size={14} /> {q.votes}</div>
+                                        <div className="flex items-center gap-1" title="Replies"><MessageCircle size={14} /> {q.replies}</div>
+                                        <div className="flex items-center gap-1" title="Views"><Eye size={14} /> {q.views}</div>
+                                    </div>
+                                </td>
+                                <td className="p-4 align-top">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${q.status === 'Open' ? 'bg-green-500/10 text-green-400 border border-green-500/30' : 'bg-red-500/10 text-red-400 border border-red-500/30'}`}>
+                                        {q.status}
+                                    </span>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            
+            {/* Pagination */}
+            <div className="p-4 flex justify-between items-center">
+                <span className="text-sm text-gray-400">
+                    Showing {indexOfFirstQuestion + 1} to {Math.min(indexOfLastQuestion, filteredQuestions.length)} of {filteredQuestions.length} results
+                </span>
+                <div className="flex items-center gap-2">
+                    <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <ChevronLeft size={20} />
+                    </button>
+                    <span className="text-sm font-medium">Page {currentPage} of {totalPages}</span>
+                    <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <ChevronRight size={20} />
+                    </button>
+                </div>
+            </div>
         </div>
-
-        {/* Pagination */}
-        <div className="flex justify-center mt-4">
-          <div className="flex flex-wrap justify-center items-center gap-2">
-
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="px-3 py-2 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ←
-            </button>
-
-            {pages.map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`px-3 py-2 rounded-lg transition-colors text-sm sm:text-base
-                  ${page === currentPage
-                    ? 'bg-purple-600 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-700'}
-                `}
-              >
-                {page}
-              </button>
-            ))}
-            <button
-              disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-
-              className="px-3 py-2 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              →
-            </button>
-          </div>
-        </div>
-      </div>
+      </main>
     </div>
   );
 };
 
-export default Dashboard;
+export default LandingPage;
