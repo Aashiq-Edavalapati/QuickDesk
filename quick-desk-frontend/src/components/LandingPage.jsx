@@ -13,6 +13,21 @@ import { Bell, Search, Filter, ThumbsUp, ThumbsDown, MessageCircle, Eye, Users, 
   const itemsPerPage = 5;
 
 
+  const formatTimeAgo = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+};
+
+
  useEffect(() => {
   setCurrentPage(1);
 }, [searchQuery, selectedCategory, selectedStatus, sortBy]);
@@ -25,7 +40,7 @@ import { Bell, Search, Filter, ThumbsUp, ThumbsDown, MessageCircle, Eye, Users, 
       title: "Is it good things to use AI for hackathon?",
       description: "I am participating in odoo IN hackathon - 2025",
       author: "Mitchell Admin",
-      timeAgo: "1 second ago",
+      createdAt: "2025-08-01T10:30:00Z",
       tags: ["Technical", "AI"],
       category: "Technical",
       status: "Open",
@@ -58,14 +73,47 @@ import { Bell, Search, Filter, ThumbsUp, ThumbsDown, MessageCircle, Eye, Users, 
       votes: 5,
       replies: 12,
       views: 234
-    }
-      
+    },
+    {
+      id: 4,
+      title: "Is it good things to use AI for hackathon?",
+      description: "I am participating in odoo IN hackathon - 2025",
+      author: "Mitchell Admin",
+      createdAt: "2025-08-01T10:30:00Z",
+      tags: ["Technical", "AI"],
+      category: "Technical",
+      status: "Open",
+      votes: 0,
+      replies: 21,
+      views: 156
+    },
+    {
+      id: 5,
+      title: "Best practices for React component optimization?",
+      description: "Looking for ways to improve performance in large React applications",
+      author: "Sarah Dev",
+      timeAgo: "5 minutes ago",
+      tags: ["Development", "React"],
+      category: "Development",
+      status: "Open",
+      votes: 3,
+      replies: 8,
+      views: 89
+    },
+    {
+      id: 6,
+      title: "How to implement authentication in Next.js?",
+      description: "Need guidance on setting up secure authentication",
+      author: "John Smith",
+      timeAgo: "1 hour ago",
+      tags: ["NextJS", "Security"],
+      category: "Development",
+      status: "Closed",
+      votes: 5,
+      replies: 12,
+      views: 234
+    },
     ];
-
-    
-
-
-
 
     const [voteCounts, setVoteCounts] = useState(() => {
       const initialVotes = {};
@@ -86,13 +134,13 @@ import { Bell, Search, Filter, ThumbsUp, ThumbsDown, MessageCircle, Eye, Users, 
   
   useEffect(() => {
     
-  const stored = JSON.parse(localStorage.getItem('viewCounts') || '{}');
-  const initialViews = {};
-  questions.forEach(q => {
-    initialViews[q.id] = stored[q.id] ?? q.views ?? 0;
-  });
-  setViewCounts(initialViews);
-}, []);
+    const stored = JSON.parse(localStorage.getItem('viewCounts') || '{}');
+    const initialViews = {};
+    questions.forEach(q => {
+      initialViews[q.id] = stored[q.id] ?? q.views ?? 0;
+    });
+    setViewCounts(initialViews);
+  }, []);
 
 
   const categories = ['all', 'Technical', 'Development', 'AI', 'Business'];
@@ -127,7 +175,8 @@ import { Bell, Search, Filter, ThumbsUp, ThumbsDown, MessageCircle, Eye, Users, 
       case 'most_upvote':
         return sorted.sort((a, b) => b.votes - a.votes);
       case 'newest':
-        return sorted.sort((a, b) => new Date(b.timeAgo) - new Date(a.timeAgo));
+        return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
       default:
         return sorted;
     }
