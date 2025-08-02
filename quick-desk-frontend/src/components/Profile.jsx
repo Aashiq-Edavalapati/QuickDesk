@@ -1,17 +1,19 @@
 // components/Profile.js
 'use client';
-import { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { User, Upload, ChevronDown } from 'lucide-react';
 
-const Profile = ({ user, onNavigate }) => {
+const Profile = ({ user, userRole, onNavigate }) => {
   const [formData, setFormData] = useState({
     name: user || '',
-    role: 'End User',
+    role: userRole || 'End User',
     category: '',
     language: 'English'
   });
   
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+  const fileInputRef = useRef(null);
 
   const roles = ['End User', 'Support Agent', 'Admin'];
   const categories = ['Technical', 'AI', 'Development', 'Business', 'General'];
@@ -33,9 +35,23 @@ const Profile = ({ user, onNavigate }) => {
     }, 1500);
   };
 
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      // Create a URL for the selected file to preview it
+      setProfileImage(URL.createObjectURL(file));
+    }
+  };
+
+  const handleImageUploadClick = () => {
+    // This function is called when the button is clicked.
+    // It programmatically clicks the hidden file input.
+    fileInputRef.current.click();
+  };
+
   return (
-    <div className="min-h-screen bg-gray-900 p-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gray-900 p-4 flex justify-center items-center">
+      <div className="max-w-2xl w-full mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-white">
@@ -49,7 +65,7 @@ const Profile = ({ user, onNavigate }) => {
           </button>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Profile Form */}
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
             <div className="flex justify-between items-center mb-6">
@@ -58,19 +74,35 @@ const Profile = ({ user, onNavigate }) => {
                 <button onClick={() => onNavigate('dashboard')} className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
                   Dashboard
                 </button>
-                <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                  Admin
-                </button>
+                {/* Admin button is now conditional */}
+                {userRole === 'Admin' && (
+                  <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    Admin
+                  </button>
+                )}
               </div>
             </div>
 
             <div className="space-y-6">
               {/* Profile Image */}
               <div className="flex items-center gap-4">
-                <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center">
-                  <User size={32} className="text-white" />
+                <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center overflow-hidden">
+                  {profileImage ? (
+                    <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <User size={32} className="text-white" />
+                  )}
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                {/* This input is hidden but is essential for the feature to work */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  className="hidden"
+                  accept="image/png, image/jpeg"
+                />
+                {/* The onClick handler is now correctly attached to this button */}
+                <button onClick={handleImageUploadClick} className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
                   <Upload size={16} />
                   Change Image
                 </button>
@@ -102,6 +134,7 @@ const Profile = ({ user, onNavigate }) => {
                     value={formData.role}
                     onChange={handleInputChange}
                     className="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                    disabled={userRole !== 'Admin'} // Non-admins can't change their role directly
                   >
                     {roles.map(role => (
                       <option key={role} value={role}>{role}</option>
@@ -153,32 +186,6 @@ const Profile = ({ user, onNavigate }) => {
                   ))}
                 </select>
               </div>
-            </div>
-          </div>
-
-          {/* Role Information */}
-          <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Role Information</h3>
-            <div className="space-y-3 text-gray-300">
-              <p>Role should be by default filled with the role of User.</p>
-              <ol className="list-decimal list-inside space-y-1">
-                <li>End User</li>
-                <li>Support Agent</li>
-                <li>Admin</li>
-              </ol>
-              
-              {formData.role === 'End User' && (
-                <div className="mt-6 p-4 bg-green-900/20 border border-green-700 rounded-lg">
-                  <p className="text-green-400 text-sm">
-                    Show only if role == End user
-                  </p>
-                  <p className="text-gray-300 text-sm mt-2">
-                    User can ask to promote there self to the admin. 
-                    Notify the upgrade request to admin & admin can 
-                    accept or reject the request.
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         </div>
