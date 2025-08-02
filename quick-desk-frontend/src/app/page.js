@@ -8,11 +8,11 @@ const Login = dynamic(() => import('../components/Login').catch(() => () => <Moc
   loading: () => <LoadingSpinner message="Loading login..." />
 });
 
-const Profile = dynamic(() => import('../components/Profile').catch(() => () => <MockProfile />), {
+const Profile = dynamic(() => import('../components/Profile').catch(() => () => <Profile />), {
   loading: () => <LoadingSpinner message="Loading profile..." />
 });
 
-const LandingPage = dynamic(() => import('../components/LandingPage').catch(() => () => <MockDashboard />), {
+const LandingPage = dynamic(() => import('../components/LandingPage').catch(() => () => <LandingPage />), {
   loading: () => <LoadingSpinner message="Loading landing page..." />
 });
 

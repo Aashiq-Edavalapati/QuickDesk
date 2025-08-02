@@ -42,7 +42,7 @@ const Profile = ({ user, onNavigate }) => {
             User should able to see & change the profile details.
           </h1>
           <button
-            onClick={() => onNavigate('dashboard')}
+            onClick={() => onNavigate('landing')}
             className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors"
           >
             Home
@@ -55,7 +55,7 @@ const Profile = ({ user, onNavigate }) => {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-white">Profile</h2>
               <div className="flex gap-2">
-                <button className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                <button onClick={() => onNavigate('dashboard')} className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">
                   Dashboard
                 </button>
                 <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
