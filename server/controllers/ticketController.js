@@ -1,4 +1,5 @@
 import Ticket from '../models/Ticket.js';
+import sendEmail from '../utils/sendEmail.js';
 
 // @desc    Create a new ticket
 // @route   POST /api/tickets
@@ -12,6 +13,12 @@ const createTicket = async (req, res) => {
       description,
       category,
       createdBy: req.user._id, // req.user is available thanks to our 'protect' middleware
+    });
+
+    await sendEmail({
+      to: req.user.email,
+      subject: `Ticket Created: #${ticket._id}`,
+      text: `Hi ${req.user.name},\n\nYour ticket "${ticket.subject}" has been successfully created. A support agent will get back to you shortly.\n\nThank you,\nThe QuickDesk Team`,
     });
 
     res.status(201).json(ticket);
@@ -62,13 +69,38 @@ const getTicketById = async (req, res) => {
   }
 };
 
-// @desc    Get all tickets (for agents/admins)
+// @desc    Get all tickets (for agents/admins) with filtering and sorting
 // @route   GET /api/tickets
 // @access  Private/Agent/Admin
 const getAllTickets = async (req, res) => {
   try {
-    // We can add filtering/pagination logic here later
-    const tickets = await Ticket.find({}).populate('createdBy', 'name email');
+    // --- Filtering ---
+    const filter = {};
+    if (req.query.status) {
+      filter.status = req.query.status; // e.g., ?status=Open
+    }
+    if (req.query.category) {
+      filter.category = req.query.category; // e.g., ?category=63f8a...
+    }
+    
+    // --- Sorting ---
+    const sortBy = {};
+    if (req.query.sortBy === 'updatedAt') {
+      sortBy.updatedAt = -1; // -1 for descending (newest first)
+    } else {
+      sortBy.createdAt = -1; // Default sort
+    }
+
+    // --- Searching (Simple implementation) ---
+    if (req.query.search) {
+        // This creates a case-insensitive search on the subject field
+        filter.subject = { $regex: req.query.search, $options: 'i' };
+    }
+
+    const tickets = await Ticket.find(filter)
+      .populate('createdBy', 'name email')
+      .sort(sortBy);
+      
     res.status(200).json(tickets);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
@@ -88,8 +120,17 @@ const updateTicketStatus = async (req, res) => {
 
     ticket.status = req.body.status || ticket.status;
     
-    // You could also update assignedTo here if you want
-    // ticket.assignedTo = req.user._id;
+    // Find the user who created the ticket to get their email
+    const ticketCreator = await User.findById(ticket.createdBy);
+
+    // Send email notification
+    if (ticketCreator) {
+      await sendEmail({
+        to: ticketCreator.email,
+        subject: `Ticket Status Updated: #${ticket._id}`,
+        text: `Hi ${ticketCreator.name},\n\nThe status of your ticket "${ticket.subject}" has been updated to: ${ticket.status}.\n\nThank you,\nThe QuickDesk Team`,
+      });
+    }
 
     const updatedTicket = await ticket.save();
     res.status(200).json(updatedTicket);
@@ -173,6 +214,27 @@ const downvoteTicket = async (req, res) => {
   }
 };
 
+// @desc    Assign a ticket to an agent
+// @route   PUT /api/tickets/:id/assign
+// @access  Private/Agent/Admin
+const assignTicketToAgent = async (req, res) => {
+  try {
+    const ticket = await Ticket.findById(req.params.id);
+
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
+
+    // Assign the ticket to the agent making the request
+    ticket.assignedTo = req.user._id;
+    ticket.status = 'In Progress'; // Automatically set status to In Progress
+
+    const updatedTicket = await ticket.save();
+    res.status(200).json(updatedTicket);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
 
 export { 
     createTicket, 
@@ -183,4 +245,5 @@ export {
     addCommentToTicket,
     downvoteTicket,
     upvoteTicket,  
+    assignTicketToAgent
 };

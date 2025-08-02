@@ -1,5 +1,5 @@
 import express from 'express';
-import { addCommentToTicket, createTicket, downvoteTicket, getAllTickets, getMyTickets, getTicketById, updateTicketStatus, upvoteTicket } from '../controllers/ticketController.js';
+import { addCommentToTicket, assignTicketToAgent, createTicket, downvoteTicket, getAllTickets, getMyTickets, getTicketById, updateTicketStatus, upvoteTicket } from '../controllers/ticketController.js';
 import { isAgentOrAdmin, protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -16,5 +16,6 @@ router.route('/:id/downvote').put(protect, downvoteTicket); // Route for downvot
 // Agent & Admin Routes
 router.route('/get-tickets').get(protect, isAgentOrAdmin, getAllTickets); // Route to get all tickets
 router.route('/:id/status').put(protect, isAgentOrAdmin, updateTicketStatus); // Route to update status of the ticket
+router.route('/:id/assign').put(protect, isAgentOrAdmin, assignTicketToAgent); // Route for assigning a ticket to a support agent
 
 export default router;
