@@ -55,6 +55,10 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
       
     ];
 
+    
+
+
+
 
     const [voteCounts, setVoteCounts] = useState(() => {
       const initialVotes = {};
@@ -120,6 +124,12 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
         return sorted;
     }
   }, [filteredQuestions, sortBy]);
+
+      const itemsPerPage = 5;
+    const totalPages = Math.ceil(sortedQuestions.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedQuestions = sortedQuestions.slice(startIndex, startIndex + itemsPerPage);
+    const pages = Array.from({ length: totalPages }, (_, i) => i + 1); // Create an array of page numbers
 
   const handleVote = (questionId, type) => {
   setVoteCounts(prev => ({
@@ -308,7 +318,7 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
 
         {/* Questions List */}
         <div className="space-y-4 mb-6">
-          {sortedQuestions.map((question) => (
+          {paginatedQuestions.map((question) => (
             <div
               key={question.id}
               className="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-gray-600 transition-colors cursor-pointer"
@@ -387,8 +397,9 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
         </div>
 
         {/* Pagination */}
-        <div className="flex justify-center sm:justify-end mt-4">
-          <div className="flex flex-wrap justify-center sm:justify-end items-center gap-2 w-full sm:w-auto">
+        <div className="flex justify-center mt-4">
+          <div className="flex flex-wrap justify-center items-center gap-2">
+
             <button
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
@@ -397,22 +408,19 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
               ←
             </button>
 
-            {[1, 2, 3, 4, '...', 11].map((page, index) => (
+            {pages.map((page) => (
               <button
-                key={index}
-                onClick={() => typeof page === 'number' && setCurrentPage(page)}
+                key={page}
+                onClick={() => setCurrentPage(page)}
                 className={`px-3 py-2 rounded-lg transition-colors text-sm sm:text-base
                   ${page === currentPage
                     ? 'bg-purple-600 text-white'
                     : 'text-gray-400 hover:text-white hover:bg-gray-700'}
-                  ${page === '...' ? 'cursor-default' : ''}
                 `}
-                disabled={page === '...'}
               >
                 {page}
               </button>
             ))}
-
             <button
               disabled={currentPage === 11}
               onClick={() => setCurrentPage((p) => Math.min(11, p + 1))}
