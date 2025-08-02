@@ -1,5 +1,6 @@
 // components/Dashboard.jsx
 'use client';
+import React from 'react';
 import {
   Bell,
   User,
@@ -10,19 +11,29 @@ import {
   BarChart2,
   HelpCircle,
   CheckCircle,
-  PieChart as PieChartIcon
+  PieChart as PieChartIcon,
+  Archive,
+  Clock,
+  ThumbsUp
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, Sector } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const Dashboard = ({ user, userRole = 'Admin', onNavigate, onLogout }) => {
     
-    // Mock data - in a real app, this would come from props or a data store
+    // Mock data with all statuses for a more detailed chart
     const allQuestions = [
-        { category: "AI", status: "Open" }, { category: "Development", status: "Open" },
-        { category: "Technical", status: "Closed" }, { category: "Development", status: "Open" },
-        { category: "Technical", status: "Open" }, { category: "Development", status: "Closed" },
-        { category: "Technical", status: "Open" }, { category: "AI", status: "Open" },
-        { category: "Business", status: "Open" }, { category: "General", status: "Closed" },
+        { category: "AI", status: "Open" }, 
+        { category: "Development", status: "In Progress" },
+        { category: "Technical", status: "Closed" }, 
+        { category: "Development", status: "Open" },
+        { category: "Technical", status: "Resolved" }, 
+        { category: "Development", status: "Closed" },
+        { category: "Technical", status: "In Progress" },
+        { category: "AI", status: "Open" },
+        { category: "Business", status: "Resolved" }, 
+        { category: "General", status: "Closed" },
+        { category: "AI", status: "Resolved" },
+        { category: "Development", status: "Open" },
     ];
 
     // Process data for charts
@@ -41,15 +52,24 @@ const Dashboard = ({ user, userRole = 'Admin', onNavigate, onLogout }) => {
         return acc;
     }, {});
 
+    // Updated pie chart data to include all statuses
     const pieChartData = [
         { name: 'Open', value: questionsByStatus['Open'] || 0 },
+        { name: 'In Progress', value: questionsByStatus['In Progress'] || 0 },
+        { name: 'Resolved', value: questionsByStatus['Resolved'] || 0 },
         { name: 'Closed', value: questionsByStatus['Closed'] || 0 },
-    ];
+    ].filter(entry => entry.value > 0); // Filter out statuses with 0 questions to keep the chart clean
 
-    const PIE_COLORS = ['#34D399', '#F87171']; // Green-400, Red-400
+    // Updated colors to match all statuses
+    const PIE_COLORS = {
+        'Open': '#34D399',        // green-400
+        'In Progress': '#FBBF24', // yellow-400
+        'Resolved': '#60A5FA',    // blue-400
+        'Closed': '#F87171',      // red-400
+    };
 
     const Sidebar = () => (
-        <aside className="w-64 bg-gray-800/50 border-r border-gray-700/50 flex flex-col">
+        <aside className="w-64 bg-gray-800/50 border-r border-gray-700/50 flex-col hidden lg:flex">
             <div className="p-6 flex items-center gap-3">
                  <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
                     <span className="text-white font-bold text-xl">Q</span>
@@ -75,7 +95,7 @@ const Dashboard = ({ user, userRole = 'Admin', onNavigate, onLogout }) => {
                         <span>Users</span>
                     </a>
                  )}
-                <a href="#" className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-700/50 hover:text-white rounded-lg transition-colors mt-2">
+                <a href="#" onClick={() => onNavigate('settings')} className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-700/50 hover:text-white rounded-lg transition-colors mt-2">
                     <Settings size={20} />
                     <span>Settings</span>
                 </a>
@@ -89,32 +109,25 @@ const Dashboard = ({ user, userRole = 'Admin', onNavigate, onLogout }) => {
         </aside>
     );
 
-    // Custom Tooltip Style
     const tooltipStyle = {
         contentStyle: {
-            backgroundColor: '#2D3748', // Tailwind's gray-800
-            border: '1px solid #4A5568', // Tailwind's gray-600
+            backgroundColor: '#2D3748',
+            border: '1px solid #4A5568',
             borderRadius: '0.5rem',
-            color: '#E2E8F0' // Tailwind's gray-200 for text
+            color: '#E2E8F0'
         },
-        itemStyle: {
-            color: '#E2E8F0' // Text color for each item in tooltip
-        },
-        cursor: {
-            fill: 'rgba(113, 128, 150, 0.1)' // Tailwind's gray-500 with low opacity
-        }
+        itemStyle: { color: '#E2E8F0' },
+        cursor: { fill: 'rgba(113, 128, 150, 0.1)' }
     };
-
 
     return (
         <div className="min-h-screen bg-gray-900 flex text-white">
             <Sidebar />
-            <main className="flex-1 p-8">
-                {/* Header */}
+            <main className="flex-1 p-4 sm:p-6 lg:p-8">
                 <header className="flex justify-between items-center mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
-                        <p className="text-gray-400">An overview of platform activity.</p>
+                        <h1 className="text-2xl md:text-3xl font-bold">Analytics Dashboard</h1>
+                        <p className="text-gray-400 text-sm md:text-base">An overview of platform activity.</p>
                     </div>
                      <div className="flex items-center gap-4">
                         <button className="p-3 bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 transition-colors">
@@ -132,39 +145,38 @@ const Dashboard = ({ user, userRole = 'Admin', onNavigate, onLogout }) => {
                     </div>
                 </header>
 
-                {/* Stat Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6 flex items-center gap-4">
-                        <div className="p-3 bg-blue-500/10 rounded-lg"><HelpCircle className="text-blue-400" size={24}/></div>
-                        <div>
-                            <h3 className="text-gray-400 text-sm font-medium">Total Questions</h3>
-                            <p className="text-2xl font-bold">{allQuestions.length}</p>
-                        </div>
-                    </div>
-                     <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6 flex items-center gap-4">
+                {/* Updated Stat Cards for all statuses */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+                    <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4 flex items-center gap-4">
                         <div className="p-3 bg-green-500/10 rounded-lg"><CheckCircle className="text-green-400" size={24}/></div>
                         <div>
-                            <h3 className="text-gray-400 text-sm font-medium">Open Questions</h3>
+                            <h3 className="text-gray-400 text-sm font-medium">Open</h3>
                             <p className="text-2xl font-bold">{questionsByStatus['Open'] || 0}</p>
                         </div>
                     </div>
-                     <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6 flex items-center gap-4">
-                        <div className="p-3 bg-red-500/10 rounded-lg"><CheckCircle className="text-red-400" size={24}/></div>
+                     <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4 flex items-center gap-4">
+                        <div className="p-3 bg-yellow-500/10 rounded-lg"><Clock className="text-yellow-400" size={24}/></div>
                         <div>
-                            <h3 className="text-gray-400 text-sm font-medium">Closed Questions</h3>
-                            <p className="text-2xl font-bold">{questionsByStatus['Closed'] || 0}</p>
+                            <h3 className="text-gray-400 text-sm font-medium">In Progress</h3>
+                            <p className="text-2xl font-bold">{questionsByStatus['In Progress'] || 0}</p>
                         </div>
                     </div>
-                     <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-6 flex items-center gap-4">
-                        <div className="p-3 bg-purple-500/10 rounded-lg"><Users className="text-purple-400" size={24}/></div>
+                     <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4 flex items-center gap-4">
+                        <div className="p-3 bg-blue-500/10 rounded-lg"><ThumbsUp className="text-blue-400" size={24}/></div>
                         <div>
-                            <h3 className="text-gray-400 text-sm font-medium">Total Categories</h3>
-                            <p className="text-2xl font-bold">{barChartData.length}</p>
+                            <h3 className="text-gray-400 text-sm font-medium">Resolved</h3>
+                            <p className="text-2xl font-bold">{questionsByStatus['Resolved'] || 0}</p>
+                        </div>
+                    </div>
+                     <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4 flex items-center gap-4">
+                        <div className="p-3 bg-red-500/10 rounded-lg"><Archive className="text-red-400" size={24}/></div>
+                        <div>
+                            <h3 className="text-gray-400 text-sm font-medium">Closed</h3>
+                            <p className="text-2xl font-bold">{questionsByStatus['Closed'] || 0}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                     <div className="lg:col-span-3 bg-gray-800/50 border border-gray-700/50 rounded-lg p-6">
                         <h3 className="text-lg font-semibold mb-4">Questions by Category</h3>
@@ -194,7 +206,7 @@ const Dashboard = ({ user, userRole = 'Admin', onNavigate, onLogout }) => {
                                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                 >
                                     {pieChartData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                                        <Cell key={`cell-${index}`} fill={PIE_COLORS[entry.name]} />
                                     ))}
                                 </Pie>
                                 <Tooltip {...tooltipStyle} />
