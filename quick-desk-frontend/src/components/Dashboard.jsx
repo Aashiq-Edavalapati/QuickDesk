@@ -54,6 +54,8 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
     }
       
     ];
+
+
     const [voteCounts, setVoteCounts] = useState(() => {
     const initialVotes = {};
     questions.forEach(q => {
@@ -69,6 +71,7 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
   });
   return initialViews;
 });
+  
   
 
   const categories = ['all', 'Technical', 'Development', 'AI', 'Business'];
@@ -120,13 +123,18 @@ const Dashboard = ({ user, onNavigate, userRole = 'End User' }) => {
 
 
   const handleQuestionClick = (questionId) => {
-  setViewCounts(prev => ({
-    ...prev,
-    [questionId]: (prev[questionId] ?? 0) + 1
-  }));
+  setViewCounts(prev => {
+    const updated = {
+      ...prev,
+      [questionId]: (prev[questionId] ?? 0) + 1
+    };
+    console.log('Updated views:', updated);
+    return updated;
+  });
 
   onNavigate('question', questionId);
 };
+
 
 
   return (
