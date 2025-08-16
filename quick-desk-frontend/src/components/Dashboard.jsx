@@ -1,223 +1,622 @@
-// components/Dashboard.jsx
-'use client';
-import React from 'react';
+'use client'
+
+import React, { useState, useEffect } from 'react'
 import {
-  Bell,
-  User,
-  LayoutGrid,
-  Users,
-  Settings,
-  LogOut,
-  BarChart2,
-  HelpCircle,
-  CheckCircle,
-  PieChart as PieChartIcon,
-  Archive,
+  Ticket,
+  Plus,
+  Search,
+  Filter,
+  MoreHorizontal,
   Clock,
-  ThumbsUp
-} from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+  AlertCircle,
+  CheckCircle,
+  TrendingUp,
+  Users,
+  MessageSquare,
+  Star,
+  Calendar,
+  Eye,
+  Edit,
+  Trash2,
+  Download,
+  RefreshCw,
+  Bell,
+  Settings,
+  User,
+  LogOut,
+  Menu,
+  X,
+  ChevronDown
+} from 'lucide-react'
+import LoadingSpinner, { SkeletonCard } from './LoadingSpinner'
 
-const Dashboard = ({ user, userRole = 'Admin', onNavigate, onLogout }) => {
-    
-    // Mock data with all statuses for a more detailed chart
-    const allQuestions = [
-        { category: "AI", status: "Open" }, 
-        { category: "Development", status: "In Progress" },
-        { category: "Technical", status: "Closed" }, 
-        { category: "Development", status: "Open" },
-        { category: "Technical", status: "Resolved" }, 
-        { category: "Development", status: "Closed" },
-        { category: "Technical", status: "In Progress" },
-        { category: "AI", status: "Open" },
-        { category: "Business", status: "Resolved" }, 
-        { category: "General", status: "Closed" },
-        { category: "AI", status: "Resolved" },
-        { category: "Development", status: "Open" },
-    ];
+const Dashboard = () => {
+  const [tickets, setTickets] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [filterPriority, setFilterPriority] = useState('all')
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [showUserDropdown, setShowUserDropdown] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
+  const [selectedTickets, setSelectedTickets] = useState([])
 
-    // Process data for charts
-    const questionsByCategory = allQuestions.reduce((acc, q) => {
-        acc[q.category] = (acc[q.category] || 0) + 1;
-        return acc;
-    }, {});
-
-    const barChartData = Object.keys(questionsByCategory).map(key => ({
-        name: key,
-        questions: questionsByCategory[key]
-    }));
-    
-    const questionsByStatus = allQuestions.reduce((acc, q) => {
-        acc[q.status] = (acc[q.status] || 0) + 1;
-        return acc;
-    }, {});
-
-    // Updated pie chart data to include all statuses
-    const pieChartData = [
-        { name: 'Open', value: questionsByStatus['Open'] || 0 },
-        { name: 'In Progress', value: questionsByStatus['In Progress'] || 0 },
-        { name: 'Resolved', value: questionsByStatus['Resolved'] || 0 },
-        { name: 'Closed', value: questionsByStatus['Closed'] || 0 },
-    ].filter(entry => entry.value > 0); // Filter out statuses with 0 questions to keep the chart clean
-
-    // Updated colors to match all statuses
-    const PIE_COLORS = {
-        'Open': '#34D399',        // green-400
-        'In Progress': '#FBBF24', // yellow-400
-        'Resolved': '#60A5FA',    // blue-400
-        'Closed': '#F87171',      // red-400
-    };
-
-    const Sidebar = () => (
-        <aside className="w-64 bg-gray-800/50 border-r border-gray-700/50 flex-col hidden lg:flex">
-            <div className="p-6 flex items-center gap-3">
-                 <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-xl">Q</span>
-                </div>
-                <h1 className="text-xl font-bold text-white">Q&A Platform</h1>
-            </div>
-            <nav className="flex-1 px-4 py-2">
-                <a href="#" onClick={() => onNavigate('landing')} className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-700/50 hover:text-white rounded-lg transition-colors mt-2">
-                    <LayoutGrid size={20} />
-                    <span>Questions</span>
-                </a>
-                <a href="#" onClick={() => onNavigate('dashboard')} className="flex items-center gap-3 px-4 py-3 bg-green-600/20 text-green-300 rounded-lg">
-                    <BarChart2 size={20} />
-                    <span>Dashboard</span>
-                </a>
-                <a href="#" onClick={() => onNavigate('profile')} className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-700/50 hover:text-white rounded-lg transition-colors mt-2">
-                    <User size={20} />
-                    <span>Profile</span>
-                </a>
-                 {userRole === 'Admin' && (
-                    <a href="#" className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-700/50 hover:text-white rounded-lg transition-colors mt-2">
-                        <Users size={20} />
-                        <span>Users</span>
-                    </a>
-                 )}
-                <a href="#" onClick={() => onNavigate('settings')} className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-700/50 hover:text-white rounded-lg transition-colors mt-2">
-                    <Settings size={20} />
-                    <span>Settings</span>
-                </a>
-            </nav>
-            <div className="p-4 border-t border-gray-700/50">
-                 <button onClick={onLogout} className="flex items-center gap-3 w-full px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-colors">
-                    <LogOut size={20} />
-                    <span>Logout</span>
-                </button>
-            </div>
-        </aside>
-    );
-
-    const tooltipStyle = {
-        contentStyle: {
-            backgroundColor: '#2D3748',
-            border: '1px solid #4A5568',
-            borderRadius: '0.5rem',
-            color: '#E2E8F0'
+  // Mock data
+  useEffect(() => {
+    const fetchData = async () => {
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      setTickets([
+        {
+          id: 'TK-001',
+          title: 'Login page not loading properly',
+          customer: 'John Smith',
+          email: 'john@example.com',
+          status: 'open',
+          priority: 'high',
+          category: 'Technical',
+          created: '2024-01-15T10:30:00Z',
+          updated: '2024-01-15T14:20:00Z',
+          assignee: 'Sarah Johnson',
+          description: 'Users are unable to access the login page. Getting 500 error.',
+          tags: ['login', 'error', 'urgent']
         },
-        itemStyle: { color: '#E2E8F0' },
-        cursor: { fill: 'rgba(113, 128, 150, 0.1)' }
-    };
+        {
+          id: 'TK-002',
+          title: 'Feature request: Dark mode support',
+          customer: 'Emily Davis',
+          email: 'emily@company.com',
+          status: 'in-progress',
+          priority: 'medium',
+          category: 'Feature Request',
+          created: '2024-01-14T16:45:00Z',
+          updated: '2024-01-15T09:15:00Z',
+          assignee: 'Mike Chen',
+          description: 'Would like to see dark mode option in the application.',
+          tags: ['feature', 'ui', 'enhancement']
+        },
+        {
+          id: 'TK-003',
+          title: 'Billing inquiry about recent charges',
+          customer: 'Robert Wilson',
+          email: 'robert@business.com',
+          status: 'pending',
+          priority: 'low',
+          category: 'Billing',
+          created: '2024-01-14T09:20:00Z',
+          updated: '2024-01-14T11:30:00Z',
+          assignee: 'Anna Martinez',
+          description: 'Customer has questions about charges on their recent invoice.',
+          tags: ['billing', 'inquiry']
+        },
+        {
+          id: 'TK-004',
+          title: 'Data export functionality not working',
+          customer: 'Lisa Anderson',
+          email: 'lisa@startup.io',
+          status: 'closed',
+          priority: 'high',
+          category: 'Technical',
+          created: '2024-01-13T14:10:00Z',
+          updated: '2024-01-14T16:45:00Z',
+          assignee: 'David Kim',
+          description: 'Export feature returns empty files when trying to download data.',
+          tags: ['export', 'data', 'bug']
+        },
+        {
+          id: 'TK-005',
+          title: 'Password reset email not received',
+          customer: 'Mark Thompson',
+          email: 'mark@agency.com',
+          status: 'open',
+          priority: 'medium',
+          category: 'Account',
+          created: '2024-01-15T11:20:00Z',
+          updated: '2024-01-15T11:20:00Z',
+          assignee: 'Sarah Johnson',
+          description: 'User not receiving password reset emails after multiple attempts.',
+          tags: ['password', 'email', 'account']
+        }
+      ])
+      setLoading(false)
+    }
 
+    fetchData()
+  }, [])
+
+  const stats = [
+    {
+      title: 'Total Tickets',
+      value: '1,247',
+      change: '+12%',
+      icon: <Ticket className="w-6 h-6" />,
+      color: 'text-[#2196F3]',
+      bgColor: 'bg-[#2196F3]/20'
+    },
+    {
+      title: 'Open Tickets',
+      value: '324',
+      change: '+8%',
+      icon: <AlertCircle className="w-6 h-6" />,
+      color: 'text-[#FFC107]',
+      bgColor: 'bg-[#FFC107]/20'
+    },
+    {
+      title: 'Resolved Today',
+      value: '89',
+      change: '+15%',
+      icon: <CheckCircle className="w-6 h-6" />,
+      color: 'text-[#4CAF50]',
+      bgColor: 'bg-[#4CAF50]/20'
+    },
+    {
+      title: 'Avg. Response Time',
+      value: '2.3h',
+      change: '-23%',
+      icon: <Clock className="w-6 h-6" />,
+      color: 'text-[#4CAF50]',
+      bgColor: 'bg-[#4CAF50]/20'
+    }
+  ]
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'open': return 'status-open'
+      case 'in-progress': return 'status-in-progress'
+      case 'pending': return 'status-pending'
+      case 'closed': return 'status-closed'
+      default: return 'status-open'
+    }
+  }
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'high': return 'priority-high'
+      case 'medium': return 'priority-medium'
+      case 'low': return 'priority-low'
+      default: return 'priority-medium'
+    }
+  }
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const filteredTickets = tickets.filter(ticket => {
+    const matchesSearch = ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         ticket.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         ticket.id.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesStatus = filterStatus === 'all' || ticket.status === filterStatus
+    const matchesPriority = filterPriority === 'all' || ticket.priority === filterPriority
+    
+    return matchesSearch && matchesStatus && matchesPriority
+  })
+
+  const handleSelectTicket = (ticketId) => {
+    setSelectedTickets(prev => 
+      prev.includes(ticketId) 
+        ? prev.filter(id => id !== ticketId)
+        : [...prev, ticketId]
+    )
+  }
+
+  const handleSelectAll = () => {
+    if (selectedTickets.length === filteredTickets.length) {
+      setSelectedTickets([])
+    } else {
+      setSelectedTickets(filteredTickets.map(ticket => ticket.id))
+    }
+  }
+
+  if (loading) {
     return (
-        <div className="min-h-screen bg-gray-900 flex text-white">
-            <Sidebar />
-            <main className="flex-1 p-4 sm:p-6 lg:p-8">
-                <header className="flex justify-between items-center mb-8">
-                    <div>
-                        <h1 className="text-2xl md:text-3xl font-bold">Analytics Dashboard</h1>
-                        <p className="text-gray-400 text-sm md:text-base">An overview of platform activity.</p>
-                    </div>
-                     <div className="flex items-center gap-4">
-                        <button className="p-3 bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 transition-colors">
-                          <Bell size={20} />
-                        </button>
-                        <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${userRole === 'Admin' ? 'bg-red-500' : 'bg-blue-500'}`}>
-                                <User size={20} />
-                            </div>
-                            <div>
-                                <p className="font-semibold">{user}</p>
-                                <p className="text-sm text-gray-400">{userRole}</p>
-                            </div>
-                        </div>
-                    </div>
-                </header>
+      <div className="min-h-screen bg-[#46494F] p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Skeleton */}
+          <div className="flex justify-between items-center mb-8">
+            <div className="skeleton h-8 w-48"></div>
+            <div className="skeleton h-10 w-32"></div>
+          </div>
 
-                {/* Updated Stat Cards for all statuses */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-                    <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4 flex items-center gap-4">
-                        <div className="p-3 bg-green-500/10 rounded-lg"><CheckCircle className="text-green-400" size={24}/></div>
-                        <div>
-                            <h3 className="text-gray-400 text-sm font-medium">Open</h3>
-                            <p className="text-2xl font-bold">{questionsByStatus['Open'] || 0}</p>
-                        </div>
-                    </div>
-                     <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4 flex items-center gap-4">
-                        <div className="p-3 bg-yellow-500/10 rounded-lg"><Clock className="text-yellow-400" size={24}/></div>
-                        <div>
-                            <h3 className="text-gray-400 text-sm font-medium">In Progress</h3>
-                            <p className="text-2xl font-bold">{questionsByStatus['In Progress'] || 0}</p>
-                        </div>
-                    </div>
-                     <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4 flex items-center gap-4">
-                        <div className="p-3 bg-blue-500/10 rounded-lg"><ThumbsUp className="text-blue-400" size={24}/></div>
-                        <div>
-                            <h3 className="text-gray-400 text-sm font-medium">Resolved</h3>
-                            <p className="text-2xl font-bold">{questionsByStatus['Resolved'] || 0}</p>
-                        </div>
-                    </div>
-                     <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4 flex items-center gap-4">
-                        <div className="p-3 bg-red-500/10 rounded-lg"><Archive className="text-red-400" size={24}/></div>
-                        <div>
-                            <h3 className="text-gray-400 text-sm font-medium">Closed</h3>
-                            <p className="text-2xl font-bold">{questionsByStatus['Closed'] || 0}</p>
-                        </div>
-                    </div>
-                </div>
+          {/* Stats Skeleton */}
+          <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-6 mb-8">
+            {[1,2,3,4].map(i => (
+              <div key={i} className="card">
+                <div className="skeleton h-12 w-12 rounded-lg mb-4"></div>
+                <div className="skeleton h-6 w-20 mb-2"></div>
+                <div className="skeleton h-4 w-16"></div>
+              </div>
+            ))}
+          </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                    <div className="lg:col-span-3 bg-gray-800/50 border border-gray-700/50 rounded-lg p-6">
-                        <h3 className="text-lg font-semibold mb-4">Questions by Category</h3>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={barChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#4A5568" />
-                                <XAxis dataKey="name" stroke="#A0AEC0" fontSize={12} />
-                                <YAxis stroke="#A0AEC0" fontSize={12} />
-                                <Tooltip {...tooltipStyle} />
-                                <Legend wrapperStyle={{ fontSize: '14px' }}/>
-                                <Bar dataKey="questions" fill="#34D399" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                    <div className="lg:col-span-2 bg-gray-800/50 border border-gray-700/50 rounded-lg p-6">
-                         <h3 className="text-lg font-semibold mb-4">Question Status Distribution</h3>
-                         <ResponsiveContainer width="100%" height={300}>
-                            <PieChart>
-                                <Pie
-                                    data={pieChartData}
-                                    cx="50%"
-                                    cy="50%"
-                                    labelLine={false}
-                                    outerRadius={100}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                >
-                                    {pieChartData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={PIE_COLORS[entry.name]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip {...tooltipStyle} />
-                                <Legend wrapperStyle={{ fontSize: '14px' }}/>
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-            </main>
+          {/* Table Skeleton */}
+          <div className="card">
+            <div className="skeleton h-8 w-32 mb-4"></div>
+            <div className="space-y-3">
+              {[1,2,3,4,5].map(i => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          </div>
         </div>
-    );
-};
+      </div>
+    )
+  }
 
-export default Dashboard;
+  return (
+    <div className="min-h-screen bg-[#46494F]">
+      {/* Header */}
+      <header className="bg-[#3a3d43] border-b border-[#5a5d63] sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-[#4CAF50] to-[#2196F3] rounded-lg flex items-center justify-center">
+                  <Ticket className="w-5 h-5 text-white" />
+                </div>
+                <h1 className="text-2xl font-bold gradient-text">QuickDesk</h1>
+              </div>
+              
+              <nav className="hidden md:flex items-center gap-6 ml-8">
+                <a href="#" className="text-white font-medium">Dashboard</a>
+                <a href="#" className="text-[#D3D3D3] hover:text-white transition-colors">Tickets</a>
+                <a href="#" className="text-[#D3D3D3] hover:text-white transition-colors">Customers</a>
+                <a href="#" className="text-[#D3D3D3] hover:text-white transition-colors">Reports</a>
+              </nav>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <button className="p-2 text-[#D3D3D3] hover:text-white hover:bg-[#5a5d63] rounded-lg transition-colors relative">
+                <Bell className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#F44336] rounded-full"></span>
+              </button>
+
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                  className="flex items-center gap-3 p-2 text-[#D3D3D3] hover:text-white hover:bg-[#5a5d63] rounded-lg transition-colors"
+                >
+                  <div className="w-8 h-8 bg-[#4CAF50] rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="hidden md:block">John Doe</span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+
+                {showUserDropdown && (
+                  <div className="absolute right-0 top-12 bg-[#3a3d43] border border-[#5a5d63] rounded-lg shadow-lg py-2 w-48 z-50">
+                    <a href="#" className="flex items-center gap-3 px-4 py-2 text-[#D3D3D3] hover:text-white hover:bg-[#5a5d63] transition-colors">
+                      <User className="w-4 h-4" />
+                      Profile
+                    </a>
+                    <a href="#" className="flex items-center gap-3 px-4 py-2 text-[#D3D3D3] hover:text-white hover:bg-[#5a5d63] transition-colors">
+                      <Settings className="w-4 h-4" />
+                      Settings
+                    </a>
+                    <hr className="border-[#5a5d63] my-2" />
+                    <button className="flex items-center gap-3 px-4 py-2 text-[#F44336] hover:bg-[#5a5d63] transition-colors w-full text-left">
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="md:hidden p-2 text-[#D3D3D3] hover:text-white hover:bg-[#5a5d63] rounded-lg transition-colors"
+              >
+                {showMobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Menu */}
+          {showMobileMenu && (
+            <div className="md:hidden mt-4 pt-4 border-t border-[#5a5d63]">
+              <nav className="space-y-2">
+                <a href="#" className="block py-2 text-white font-medium">Dashboard</a>
+                <a href="#" className="block py-2 text-[#D3D3D3] hover:text-white transition-colors">Tickets</a>
+                <a href="#" className="block py-2 text-[#D3D3D3] hover:text-white transition-colors">Customers</a>
+                <a href="#" className="block py-2 text-[#D3D3D3] hover:text-white transition-colors">Reports</a>
+              </nav>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto p-6">
+        {/* Welcome Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+          <div>
+            <h2 className="text-3xl font-bold mb-2">Welcome back, John! 👋</h2>
+            <p className="text-[#D3D3D3]">Here's what's happening with your support tickets today.</p>
+          </div>
+          
+          <div className="flex items-center gap-3 mt-4 md:mt-0">
+            <button className="btn-secondary flex items-center gap-2">
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </button>
+            <button className="btn-primary flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              New Ticket
+            </button>
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-6 mb-8">
+          {stats.map((stat, index) => (
+            <div key={index} className="card card-hover">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-12 h-12 ${stat.bgColor} rounded-lg flex items-center justify-center`}>
+                  <div className={stat.color}>
+                    {stat.icon}
+                  </div>
+                </div>
+                <div className={`text-sm font-medium px-2 py-1 rounded-full ${
+                  stat.change.startsWith('+') ? 'text-[#4CAF50] bg-[#4CAF50]/20' : 'text-[#4CAF50] bg-[#4CAF50]/20'
+                }`}>
+                  {stat.change}
+                </div>
+              </div>
+              <div className="text-2xl font-bold mb-1">{stat.value}</div>
+              <div className="text-[#D3D3D3] text-sm">{stat.title}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Tickets Section */}
+        <div className="card">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <h3 className="text-xl font-semibold">Recent Tickets</h3>
+            
+            {/* Search and Filters */}
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <div className="relative flex-1 md:w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#D3D3D3]" />
+                <input
+                  type="text"
+                  placeholder="Search tickets..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="input-field pl-10 w-full"
+                />
+              </div>
+              
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 bg-[#5a5d63] hover:bg-[#6a6d73] text-white px-4 py-3 rounded-lg transition-colors"
+              >
+                <Filter className="w-4 h-4" />
+                Filters
+              </button>
+            </div>
+          </div>
+
+          {/* Filter Panel */}
+          {showFilters && (
+            <div className="bg-[#2a2d33] p-4 rounded-lg mb-6 border border-[#5a5d63]">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Status</label>
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="input-field w-full"
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="open">Open</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="pending">Pending</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-2">Priority</label>
+                  <select
+                    value={filterPriority}
+                    onChange={(e) => setFilterPriority(e.target.value)}
+                    className="input-field w-full"
+                  >
+                    <option value="all">All Priorities</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+                
+                <div className="flex items-end">
+                  <button
+                    onClick={() => {
+                      setFilterStatus('all')
+                      setFilterPriority('all')
+                      setSearchQuery('')
+                    }}
+                    className="w-full bg-[#5a5d63] hover:bg-[#6a6d73] text-white py-3 px-4 rounded-lg transition-colors"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tickets Table */}
+          <div className="overflow-x-auto">
+            {filteredTickets.length === 0 ? (
+              <div className="text-center py-12">
+                <Ticket className="w-12 h-12 text-[#5a5d63] mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No tickets found</h3>
+                <p className="text-[#D3D3D3] mb-4">Try adjusting your search or filters</p>
+                <button className="btn-primary">Create New Ticket</button>
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#5a5d63]">
+                    <th className="text-left py-3 px-4 font-medium text-[#D3D3D3]">
+                      <input
+                        type="checkbox"
+                        checked={selectedTickets.length === filteredTickets.length}
+                        onChange={handleSelectAll}
+                        className="w-4 h-4 text-[#4CAF50] bg-[#5a5d63] border-[#5a5d63] rounded focus:ring-[#4CAF50]"
+                      />
+                    </th>
+                    <th className="text-left py-3 px-4 font-medium text-[#D3D3D3]">Ticket</th>
+                    <th className="text-left py-3 px-4 font-medium text-[#D3D3D3]">Customer</th>
+                    <th className="text-left py-3 px-4 font-medium text-[#D3D3D3]">Status</th>
+                    <th className="text-left py-3 px-4 font-medium text-[#D3D3D3]">Priority</th>
+                    <th className="text-left py-3 px-4 font-medium text-[#D3D3D3]">Assignee</th>
+                    <th className="text-left py-3 px-4 font-medium text-[#D3D3D3]">Updated</th>
+                    <th className="text-left py-3 px-4 font-medium text-[#D3D3D3]">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTickets.map((ticket) => (
+                    <tr 
+                      key={ticket.id} 
+                      className="border-b border-[#5a5d63] hover:bg-[#2a2d33] transition-colors"
+                    >
+                      <td className="py-4 px-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedTickets.includes(ticket.id)}
+                          onChange={() => handleSelectTicket(ticket.id)}
+                          className="w-4 h-4 text-[#4CAF50] bg-[#5a5d63] border-[#5a5d63] rounded focus:ring-[#4CAF50]"
+                        />
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <div className="font-medium text-white mb-1">{ticket.id}</div>
+                          <div className="text-sm text-[#D3D3D3] truncate max-w-xs">
+                            {ticket.title}
+                          </div>
+                          <div className="flex gap-1 mt-2">
+                            {ticket.tags.map((tag, index) => (
+                              <span 
+                                key={index}
+                                className="px-2 py-1 bg-[#5a5d63] text-xs rounded text-[#D3D3D3]"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div>
+                          <div className="font-medium text-white">{ticket.customer}</div>
+                          <div className="text-sm text-[#D3D3D3]">{ticket.email}</div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(ticket.status)}`}>
+                          {ticket.status.replace('-', ' ')}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(ticket.priority)}`}>
+                          {ticket.priority}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-[#4CAF50] rounded-full flex items-center justify-center">
+                            <span className="text-xs text-white font-medium">
+                              {ticket.assignee?.split(' ').map(n => n[0]).join('')}
+                            </span>
+                          </div>
+                          <span className="text-sm text-white">{ticket.assignee}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="text-sm text-[#D3D3D3]">
+                          {formatDate(ticket.updated)}
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-2">
+                          <button className="p-1 text-[#D3D3D3] hover:text-white hover:bg-[#5a5d63] rounded transition-colors">
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button className="p-1 text-[#D3D3D3] hover:text-white hover:bg-[#5a5d63] rounded transition-colors">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <div className="relative">
+                            <button className="p-1 text-[#D3D3D3] hover:text-white hover:bg-[#5a5d63] rounded transition-colors">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* Bulk Actions */}
+          {selectedTickets.length > 0 && (
+            <div className="mt-4 p-4 bg-[#2a2d33] rounded-lg border border-[#5a5d63] flex items-center justify-between">
+              <div className="text-sm text-[#D3D3D3]">
+                {selectedTickets.length} ticket{selectedTickets.length > 1 ? 's' : ''} selected
+              </div>
+              <div className="flex items-center gap-3">
+                <button className="text-sm text-[#2196F3] hover:text-[#1976D2] transition-colors">
+                  Assign
+                </button>
+                <button className="text-sm text-[#4CAF50] hover:text-[#45a049] transition-colors">
+                  Close
+                </button>
+                <button className="text-sm text-[#F44336] hover:text-[#D32F2F] transition-colors">
+                  Delete
+                </button>
+                <button className="text-sm text-[#D3D3D3] hover:text-white transition-colors flex items-center gap-1">
+                  <Download className="w-4 h-4" />
+                  Export
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Pagination */}
+          <div className="mt-6 flex items-center justify-between">
+            <div className="text-sm text-[#D3D3D3]">
+              Showing {filteredTickets.length} of {tickets.length} tickets
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="px-3 py-2 text-sm bg-[#5a5d63] hover:bg-[#6a6d73] text-white rounded transition-colors">
+                Previous
+              </button>
+              <button className="px-3 py-2 text-sm bg-[#4CAF50] text-white rounded">
+                1
+              </button>
+              <button className="px-3 py-2 text-sm bg-[#5a5d63] hover:bg-[#6a6d73] text-white rounded transition-colors">
+                2
+              </button>
+              <button className="px-3 py-2 text-sm bg-[#5a5d63] hover:bg-[#6a6d73] text-white rounded transition-colors">
+                3
+              </button>
+              <button className="px-3 py-2 text-sm bg-[#5a5d63] hover:bg-[#6a6d73] text-white rounded transition-colors">
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+}
+
+export default Dashboard
