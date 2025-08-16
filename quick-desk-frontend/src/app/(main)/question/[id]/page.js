@@ -1,8 +1,9 @@
 import React from 'react'
+import QuestionDetail from '@/components/QuestionDetail'
 
 function Question() {
   return (
-    <div>Question</div>
+    <QuestionDetail />
   )
 }
 

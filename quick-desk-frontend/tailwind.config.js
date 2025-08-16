@@ -1,46 +1,46 @@
 /** @type {import('tailwindcss').Config} */
-const plugin = require('tailwindcss/plugin');
-
 module.exports = {
-  // Configure dark mode to be toggled manually with a 'dark' class
-  darkMode: 'class',
-
-  // Specify the files to scan for Tailwind classes
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-
-  // Define and extend the default theme
   theme: {
     extend: {
-      // Add custom animation delay values
-      animationDelay: {
-        2000: '2000ms',
-        4000: '4000ms',
+      colors: {
+        primary: {
+          bg: '#46494F',
+          text: '#FFFFFF',
+          'text-muted': '#D3D3D3',
+        },
+        success: '#4CAF50',
+        error: '#F44336',
+        warning: '#FFC107',
+        info: '#2196F3',
+        dark: {
+          100: '#5A5D63',
+          200: '#4F5258',
+          300: '#46494F',
+          400: '#3D4044',
+          500: '#34373A',
+        }
       },
-      // You can also add custom animations, colors, etc. here
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'slide-up': 'slideUp 0.3s ease-out',
+        'pulse-slow': 'pulse 3s infinite',
       },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+      }
     },
   },
-
-  // Add custom plugins
-  plugins: [
-    // Plugin to add the animation-delay utility
-    plugin(function ({ matchUtilities, theme }) {
-      matchUtilities(
-        {
-          'animation-delay': (value) => ({
-            'animation-delay': value,
-          }),
-        },
-        { values: theme('animationDelay') }
-      );
-    }),
-  ],
-};
+  plugins: [],
+}

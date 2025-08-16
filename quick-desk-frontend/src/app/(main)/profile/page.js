@@ -1,9 +1,10 @@
 import React from 'react'
+import Profile from '@/components/Profile'
 
-function Profile() {
+function UserProfile() {
   return (
-    <div>Profile</div>
+    <Profile />
   )
 }
 
-export default Profile
+export default UserProfile
