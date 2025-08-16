@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const Signup = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -12,7 +13,7 @@ const Signup = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    // console.log('Form submitted:', formData);
   };
 
   return (
@@ -63,15 +64,15 @@ const Signup = () => {
       {/* Only Google Button */}
       <div className="mt-2">
         <button className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors duration-300">
-          <img src="/google.svg" alt="Google" className="h-5 mr-3" />
+          <Image src='/google.svg' alt="Google" width={20} height={20} className="h-5 mr-3" />
           <span className="text-sm font-medium text-gray-700">Continue with Google</span>
         </button>
       </div>
 
       {/* Terms */}
       <p className="mt-4 text-[10px] text-gray-500 text-center leading-relaxed">
-        By continuing, you accept our <a href="#" className="text-blue-600 hover:underline">Terms of Use</a>, our{' '}
-        <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a> and that your data is stored in the USA.
+        By continuing, you accept our <Link href="/terms" className="text-blue-600 hover:underline">Terms of Use</Link>, our{' '}
+        <Link href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>.
       </p>
 
       {/* Sign In link */}
