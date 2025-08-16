@@ -4,35 +4,35 @@ import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 
 // Dynamically import components with loading fallbacks to prevent import errors
-const Login = dynamic(() => import('../components/Login').catch(() => () => <MockLogin />), {
+const Login = dynamic(() => import('../../components/Login').catch(() => () => <MockLogin />), {
   loading: () => <LoadingSpinner message="Loading login..." />
 });
 
-const Profile = dynamic(() => import('../components/Profile').catch(() => () => <Profile />), {
+const Profile = dynamic(() => import('../../components/Profile').catch(() => () => <Profile />), {
   loading: () => <LoadingSpinner message="Loading profile..." />
 });
 
-const LandingPage = dynamic(() => import('../components/LandingPage').catch(() => () => <LandingPage />), {
+const LandingPage = dynamic(() => import('../../components/LandingPage').catch(() => () => <LandingPage />), {
   loading: () => <LoadingSpinner message="Loading landing page..." />
 });
 
-const Dashboard = dynamic(() => import('../components/Dashboard').catch(() => <Dashboard />), {
+const Dashboard = dynamic(() => import('../../components/Dashboard').catch(() => <Dashboard />), {
     loading: () => <LoadingSpinner message="Loading dashboard..." />
 })
 
-const AskQuestion = dynamic(() => import('../components/AskQuestion').catch(() => () => <MockAskQuestion />), {
+const AskQuestion = dynamic(() => import('../../components/AskQuestion').catch(() => () => <MockAskQuestion />), {
   loading: () => <LoadingSpinner message="Loading..." />
 });
 
-const QuestionDetail = dynamic(() => import('../components/QuestionDetail').catch(() => () => <MockQuestionDetail />), {
+const QuestionDetail = dynamic(() => import('../../components/QuestionDetail').catch(() => () => <MockQuestionDetail />), {
   loading: () => <LoadingSpinner message="Loading question..." />
 });
 
-const MobileDashboard = dynamic(() => import('../components/MobileDashboard').catch(() => () => <MockDashboard />), {
+const MobileDashboard = dynamic(() => import('../../components/MobileDashboard').catch(() => () => <MockDashboard />), {
   loading: () => <LoadingSpinner message="Loading mobile dashboard..." />
 });
 
-const Settings = dynamic(() => import('../components/Settings').catch(() => () => <Settings />), {
+const Settings = dynamic(() => import('../../components/Settings').catch(() => () => <Settings />), {
   loading: () => <LoadingSpinner message="Loading settings..." />
 });
 
@@ -258,16 +258,6 @@ const MockQuestionDetail = ({ questionId, user, userRole, onNavigate }) => (
           Mock component - Create ../components/QuestionDetail.js to replace this
         </p>
       </div>
-    </div>
-  </div>
-);
-
-// Loading Spinner Component
-const LoadingSpinner = ({ message = "Loading..." }) => (
-  <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-    <div className="text-center">
-      <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mb-4"></div>
-      <p className="text-gray-400 text-lg">{message}</p>
     </div>
   </div>
 );
