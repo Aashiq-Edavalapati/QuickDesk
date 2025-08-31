@@ -1,8 +1,10 @@
-import { Inter } from 'next/font/google'
-import './globals.css'
-import ErrorBoundary from '@/components/ErrorBoundary'
+import { Inter } from "next/font/google";
+import "./globals.css";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export const metadata = {
   title: 'QuickDesk - Professional Help Desk Solution',
@@ -11,18 +13,16 @@ export const metadata = {
   authors: [{ name: 'QuickDesk Team' }],
   viewport: 'width=device-width, initial-scale=1',
   robots: 'index, follow',
-}
+};
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-[#46494F] text-white antialiased`}>
-        <ErrorBoundary>
-          <div className="min-h-screen bg-[#46494F]">
-            {children}
-          </div>
-        </ErrorBoundary>
+    <html lang="en">
+      <body
+        className={`${inter.variable} antialiased`}
+      >
+        {children}
       </body>
     </html>
-  )
+  );
 }
