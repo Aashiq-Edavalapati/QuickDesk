@@ -7,10 +7,10 @@ import Footer from '../features/Footer'
 const LandingPage = () => {
   return (
     <div className='relative h-full'>
-        <Hero />
+        {/* <Hero /> */}
         <Features />
         <Testimonial />
-        <Footer />
+        {/* <Footer /> */}
     </div>
   )
 }
