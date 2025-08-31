@@ -3,7 +3,7 @@ import { LoginButton } from '../ui/LoginButton'
 
 const Hero = () => {
   return (
-    <div className='relative flex max-w-screen h-screen bg-light-mint items-center'>
+    <div className='relative flex max-w-screen h-screen bg-light-mint items-center overflow-hidden'>
       <div className='absolute right-3 top-3'>
         <LoginButton />
       </div>

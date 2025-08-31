@@ -90,7 +90,7 @@ const Testimonial = () => {
     }, 5000);
 
     return () => clearInterval(timer);
-  }, [currTestimonialIndex]);
+  }, []);
 
   return (
     <div className='relative flex flex-col items-center justify-center h-screen bg-light-mint'>
