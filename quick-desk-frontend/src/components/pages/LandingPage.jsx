@@ -6,8 +6,8 @@ import Footer from '../features/Footer'
 
 const LandingPage = () => {
   return (
-    <div className='relative h-full'>
-        {/* <Hero /> */}
+    <div className='relative h-full max-w-screen'>
+        <Hero />
         <Features />
         <Testimonial />
         <Footer />
