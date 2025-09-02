@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <div className='relative bg-dark-cyan flex flex-col max-w-screen h-[120px] text-white'>
       <div className='relative flex justify-between py-[20px] px-[30px]'>
-        <div>
+        <div className='relative flex justify-end w-[110px]'>
           QUICKDESK
         </div>
         <div className='relative flex justify-around w-[350px]'>
